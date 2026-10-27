@@ -1,0 +1,23 @@
+{% comment %}
+Primary navigation links. Included twice by navbar.html: once for wide
+screens and once (with mobile=True) for the small-screen menu.
+{% endcomment %}
+{% if mobile %}
+    {% with link="block rounded-xl px-4 py-3 text-base font-semibold text-navy-900 hover:bg-canvas aria-[current=page]:bg-teal-50 aria-[current=page]:text-teal-800" %}
+    <li><a href="{% url 'about' %}" class="{{ link }}" {% if nav_section == "about" %}aria-current="page"{% endif %}>About</a></li>
+    <li><a href="{% url 'product_list' %}" class="{{ link }}" {% if nav_section == "products" %}aria-current="page"{% endif %}>Products</a></li>
+    <li><a href="{% url 'partners' %}" class="{{ link }}" {% if nav_section == "partners" %}aria-current="page"{% endif %}>Partners</a></li>
+    <li><a href="{% url 'team' %}" class="{{ link }}" {% if nav_section == "team" %}aria-current="page"{% endif %}>Sales Team</a></li>
+    <li><a href="{% url 'job_list' %}" class="{{ link }}" {% if nav_section == "careers" %}aria-current="page"{% endif %}>Careers</a></li>
+    <li><a href="{% url 'contact' %}" class="{{ link }}" {% if nav_section == "contact" %}aria-current="page"{% endif %}>Contact</a></li>
+    {% endwith %}
+{% else %}
+    {% with link="relative rounded-full px-3.5 py-2 text-[0.92rem] font-semibold whitespace-nowrap text-navy-900 hover:bg-canvas hover:text-navy-700 aria-[current=page]:text-teal-700 aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-3.5 aria-[current=page]:after:-bottom-px aria-[current=page]:after:h-0.5 aria-[current=page]:after:rounded-full aria-[current=page]:after:bg-teal-600" %}
+    <li><a href="{% url 'about' %}" class="{{ link }}" {% if nav_section == "about" %}aria-current="page"{% endif %}>About</a></li>
+    <li><a href="{% url 'product_list' %}" class="{{ link }}" {% if nav_section == "products" %}aria-current="page"{% endif %}>Products</a></li>
+    <li><a href="{% url 'partners' %}" class="{{ link }}" {% if nav_section == "partners" %}aria-current="page"{% endif %}>Partners</a></li>
+    <li><a href="{% url 'team' %}" class="{{ link }}" {% if nav_section == "team" %}aria-current="page"{% endif %}>Sales Team</a></li>
+    <li><a href="{% url 'job_list' %}" class="{{ link }}" {% if nav_section == "careers" %}aria-current="page"{% endif %}>Careers</a></li>
+    <li><a href="{% url 'contact' %}" class="{{ link }}" {% if nav_section == "contact" %}aria-current="page"{% endif %}>Contact</a></li>
+    {% endwith %}
+{% endif %}

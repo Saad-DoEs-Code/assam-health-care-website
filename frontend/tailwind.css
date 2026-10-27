@@ -1,0 +1,314 @@
+/*
+ * Assam Healthcare — Tailwind CSS v4 entry point.
+ *
+ * Build:   npm run build:css      (writes static/css/site.css)
+ * Develop: npm run watch:css
+ *
+ * Design tokens live in @theme below. Most styling is done with utility
+ * classes in the Django templates; this file only holds tokens, base styles,
+ * a few shared components (buttons, form controls, rich text) and effects
+ * that are clearer as CSS.
+ */
+
+@import "tailwindcss" source(none);
+
+/* Files Tailwind scans for class names. */
+@source "../templates";
+@source "../static/js";
+@source "../apps";
+
+/* ------------------------------------------------------------------ */
+/* Fonts (self-hosted, SIL Open Font License; copied by `npm run fonts`) */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: "Manrope Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url("../fonts/manrope-latin-wght-normal.woff2") format("woff2-variations");
+}
+
+@font-face {
+  font-family: "Source Serif 4 Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 900;
+  src: url("../fonts/source-serif-4-latin-wght-normal.woff2") format("woff2-variations");
+}
+
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  /* Only the brand palette is available: no stray default colours. */
+  --color-*: initial;
+
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Navy — authority and structure. 700 is the brand primary, 800 brand dark. */
+  --color-navy-50: #f0f4f9;
+  --color-navy-100: #dfe8f2;
+  --color-navy-200: #c3d3e6;
+  --color-navy-300: #94afd0;
+  --color-navy-400: #5d82b0;
+  --color-navy-500: #34609a;
+  --color-navy-600: #1f4c87;
+  --color-navy-700: #153e75;
+  --color-navy-800: #102f59;
+  --color-navy-900: #0b2140;
+  --color-navy-950: #071630;
+
+  /* Teal — accents and actions. 600 is the brand teal (fills, icons);
+     700 is the accessible text shade (≥ 6:1 on white). */
+  --color-teal-50: #ecf8f8;
+  --color-teal-100: #d3efee;
+  --color-teal-200: #a9dfde;
+  --color-teal-300: #6fc6c5;
+  --color-teal-400: #33a6a7;
+  --color-teal-500: #13979a;
+  --color-teal-600: #0f8b8d;
+  --color-teal-700: #0b6b6d;
+  --color-teal-800: #0a5658;
+
+  /* Neutrals */
+  --color-ink: #13233a;        /* body text */
+  --color-muted: #56657a;      /* secondary text, ≥ 5:1 on canvas */
+  --color-line: #dce4ee;       /* borders */
+  --color-line-strong: #c3cfdd;
+  --color-canvas: #f5f8fb;     /* pale blue-grey page surface */
+  --color-mist: #eaf0f6;       /* slightly deeper surface */
+
+  /* Status (used only for validation and confirmation) */
+  --color-danger-50: #fdf2f1;
+  --color-danger-200: #f5c6c1;
+  --color-danger-700: #a3251a;
+  --color-success-50: #ecf7f1;
+  --color-success-700: #17694a;
+
+  /* Typography */
+  --font-sans: "Manrope Variable", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-display: "Source Serif 4 Variable", Georgia, "Times New Roman", serif;
+
+  /* Radii and shadows */
+  --radius-card: 1.25rem;
+  --shadow-card: 0 1px 2px rgb(11 33 64 / 4%), 0 8px 24px -12px rgb(11 33 64 / 12%);
+  --shadow-lift: 0 2px 4px rgb(11 33 64 / 5%), 0 22px 44px -18px rgb(11 33 64 / 28%);
+
+  /* Layout */
+  --container-page: 76rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-navy-900;
+    text-wrap: balance;
+  }
+
+  a {
+    @apply text-navy-700 transition-colors;
+  }
+
+  a:hover {
+    @apply text-teal-700;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-teal-600);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    @apply bg-teal-100 text-navy-900;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared components                                                   */
+/* These class names are also created by static/js/inquiry_form.js.    */
+/* ------------------------------------------------------------------ */
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-[0.95rem] font-semibold no-underline transition duration-200 select-none;
+    @apply disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-sm {
+    @apply min-h-10 px-4 text-sm;
+  }
+
+  .btn-primary {
+    @apply bg-navy-700 text-white shadow-[0_8px_20px_-10px_rgb(16_47_89/60%)] hover:bg-navy-800 hover:text-white;
+  }
+
+  /* teal-700, not the brand teal-600: white text needs ≥ 4.5:1 contrast. */
+  .btn-accent {
+    @apply bg-teal-700 text-white hover:bg-teal-800 hover:text-white;
+  }
+
+  .btn-secondary {
+    @apply border border-line-strong bg-white text-navy-800 hover:border-navy-700 hover:text-navy-800;
+  }
+
+  .btn-light {
+    @apply bg-white text-navy-800 hover:bg-teal-50 hover:text-navy-900;
+  }
+
+  .btn-ghost-danger {
+    @apply bg-transparent text-danger-700 hover:bg-danger-50 hover:text-danger-700;
+  }
+
+  .btn-added {
+    @apply border border-teal-200 bg-teal-50 text-teal-800 hover:bg-teal-100 hover:text-teal-800;
+  }
+
+  /* The arrow inside a link nudges right on hover. */
+  .arrow-link .arrow {
+    @apply transition-transform duration-200;
+  }
+
+  .arrow-link:hover .arrow,
+  .arrow-link:focus-visible .arrow,
+  .group:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .eyebrow {
+    @apply text-xs font-bold tracking-[0.16em] text-teal-700 uppercase;
+  }
+
+  /* Form controls rendered by Django widgets inside .form-field. */
+  .form-field {
+    @apply flex min-w-0 flex-col gap-1.5;
+  }
+
+  .form-field > label,
+  .form-label {
+    @apply text-sm font-semibold text-navy-900;
+  }
+
+  .form-control,
+  .form-field :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea) {
+    @apply w-full min-h-12 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-[0.95rem] text-ink transition;
+    @apply placeholder:text-muted/70 hover:border-navy-300;
+    @apply focus:border-teal-600 focus:ring-4 focus:ring-teal-600/15 focus:outline-none;
+  }
+
+  .form-field select,
+  select.form-control {
+    @apply appearance-none bg-no-repeat pr-11;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23153e75' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 1rem center;
+  }
+
+  .form-field textarea {
+    @apply min-h-32 resize-y;
+  }
+
+  .form-field input[type="file"] {
+    @apply w-full rounded-xl border border-dashed border-line-strong bg-canvas p-3 text-sm;
+    @apply file:mr-4 file:rounded-full file:border-0 file:bg-navy-700 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white;
+  }
+
+  .form-field small,
+  .form-help {
+    @apply text-sm text-muted;
+  }
+
+  .field-errors {
+    @apply text-sm font-medium text-danger-700;
+  }
+
+  .field-errors p {
+    @apply m-0;
+  }
+
+  .form-field:has(.field-errors) :is(input, select, textarea) {
+    @apply border-danger-700;
+  }
+
+  /* Text from the database rendered with |linebreaks. */
+  .rich-text {
+    @apply max-w-[68ch] text-[1.05rem] leading-8 text-ink;
+  }
+
+  .rich-text p + p {
+    @apply mt-4;
+  }
+
+  .rich-text h2 {
+    @apply mt-10 mb-3 font-display text-2xl font-semibold;
+  }
+
+  .rich-text ul {
+    @apply my-4 list-disc pl-6;
+  }
+
+  .rich-text a {
+    @apply underline decoration-teal-300 underline-offset-4;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Effects that are clearer as CSS                                     */
+/* ------------------------------------------------------------------ */
+
+@layer utilities {
+  /* Faint engineering grid used behind the hero and page headers. */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgb(21 62 117 / 6%) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(21 62 117 / 6%) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .bg-grid-fade {
+    mask-image: radial-gradient(ellipse at 70% 30%, black 20%, transparent 75%);
+  }
+
+  /* Hidden from people, still present for spam bots. */
+  .form-trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+}

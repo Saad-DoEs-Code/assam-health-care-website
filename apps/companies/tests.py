@@ -25,9 +25,7 @@ class PartnerPageTests(TestCase):
 
     def test_partner_badge_only_on_official_partners(self):
         response = self.client.get(reverse("partners"))
-        self.assertContains(
-            response, '<span class="badge">Official distribution partner</span>', count=1
-        )
+        self.assertContains(response, "data-partner-badge", count=1)
 
     def test_links_to_company_products(self):
         response = self.client.get(reverse("partners"))

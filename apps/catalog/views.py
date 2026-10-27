@@ -1,5 +1,5 @@
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404
 
 from apps.companies.models import Company
@@ -58,6 +58,12 @@ def product_list(request):
     categories = Category.objects.filter(
         is_active=True,
         parent__isnull=True,
+    ).annotate(
+        product_count=Count(
+            "products",
+            filter=Q(products__in=Product.objects.public()),
+            distinct=True,
+        )
     )
 
     paginator = Paginator(products, PRODUCTS_PER_PAGE)

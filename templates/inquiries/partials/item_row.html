@@ -7,45 +7,48 @@ Rows are removed by deleting them from the page (JavaScript) or by ticking
 "Remove" (no JavaScript).
 {% endcomment %}
 {% with product=item_form.selected_product %}
-<div class="quote-item{% if item_form.errors %} quote-item--error{% endif %}"
+<div class="rounded-2xl border bg-white p-4 sm:p-5 {% if item_form.errors %}border-danger-700{% else %}border-line{% endif %}"
      data-item-row
      {% if product %}data-product-id="{{ product.pk }}"{% endif %}
      {% if not product and not item_form.errors %}data-blank-row{% endif %}>
 
-    <div class="quote-item__header">
+    <div class="flex items-start justify-between gap-4" data-item-header>
         {% if product %}
-            <div>
-                <h3 class="quote-item__name">{{ product.name }}</h3>
-                <p class="quote-item__meta">{{ product.company.name }} &middot; {{ product.category.name }}</p>
+            <div class="flex min-w-0 items-start gap-3">
+                <span class="mt-1 size-2.5 shrink-0 rounded-full bg-teal-600" aria-hidden="true"></span>
+                <div class="min-w-0">
+                    <h3 class="font-semibold text-navy-900" data-item-name>{{ product.name }}</h3>
+                    <p class="text-sm text-muted">{{ product.company.name }} &middot; {{ product.category.name }}</p>
+                </div>
             </div>
         {% else %}
-            <h3 class="quote-item__name">Product {{ forloop.counter }}</h3>
+            <h3 class="font-semibold text-navy-900">Product {{ forloop.counter }}</h3>
         {% endif %}
 
-        <label class="quote-item__remove-check" data-no-js-remove>
+        <label class="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-danger-700" data-no-js-remove>
             {{ item_form.DELETE }}
             Remove
         </label>
     </div>
 
     {% if item_form.non_field_errors %}
-        <div class="field-errors" role="alert">
+        <div class="field-errors mt-3" role="alert">
             {% for error in item_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
         </div>
     {% endif %}
 
-    <div class="quote-item__fields">
+    <div class="mt-4 grid gap-4 sm:grid-cols-[1fr_8rem]">
         {% if product %}
             <input type="hidden" name="{{ item_form.product.html_name }}" value="{{ product.pk }}">
         {% else %}
-            <div class="form-field form-field--full">
+            <div class="form-field sm:col-span-2">
                 <label for="{{ item_form.product.id_for_label }}">Product</label>
                 {{ item_form.product }}
             </div>
         {% endif %}
 
         {% if item_form.product.errors %}
-            <div class="field-errors form-field--full" role="alert">
+            <div class="field-errors sm:col-span-2" role="alert">
                 {% for error in item_form.product.errors %}<p>{{ error }}</p>{% endfor %}
             </div>
         {% endif %}
@@ -62,8 +65,8 @@ Rows are removed by deleting them from the page (JavaScript) or by ticking
             </div>
         {% endif %}
 
-        <div class="form-field">
-            <label for="{{ item_form.quantity.id_for_label }}">Quantity <span aria-hidden="true">*</span></label>
+        <div class="form-field {% if product and not item_form.has_variants %}sm:max-w-40{% endif %}">
+            <label for="{{ item_form.quantity.id_for_label }}">Quantity <span class="text-danger-700" aria-hidden="true">*</span></label>
             {{ item_form.quantity }}
             {% if item_form.quantity.errors %}
                 <div class="field-errors" role="alert">
@@ -72,7 +75,7 @@ Rows are removed by deleting them from the page (JavaScript) or by ticking
             {% endif %}
         </div>
 
-        <div class="form-field form-field--full">
+        <div class="form-field sm:col-span-2">
             <label for="{{ item_form.notes.id_for_label }}">{{ item_form.notes.label }}</label>
             {{ item_form.notes }}
             {% if item_form.notes.errors %}

@@ -14,6 +14,10 @@ python manage.py runserver
 Without environment variables the site runs in development mode (`DEBUG=True`,
 development secret key, console email). Visit http://127.0.0.1:8000/.
 
+Styling uses Tailwind CSS. The compiled `static/css/site.css` is committed; to
+change styles, install Node.js and see [FRONTEND.md](FRONTEND.md)
+(`npm install`, then `npm run build:css` or `npm run watch:css`).
+
 To try changes against a copy of the database without touching the real one:
 
 ```powershell
@@ -103,6 +107,8 @@ python -c "import secrets; print(secrets.token_urlsafe(50))"
 
 ```powershell
 pip install -r requirements.txt
+npm install            # only if you rebuild CSS on the server
+npm run build          # only if you rebuild CSS on the server
 python manage.py migrate
 python manage.py collectstatic --noinput
 python manage.py check --deploy

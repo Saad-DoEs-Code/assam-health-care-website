@@ -1,44 +1,51 @@
+{% load site_tags %}
 {% comment %}
-Product card used on the catalogue, homepage and related-products list.
+Product card used on the catalogue, homepage and related products.
 Expects `product` with `category`, `company` and prefetched `images`.
-`heading_tag` defaults to h3.
+Products without a photo show their category illustration instead.
 {% endcomment %}
 {% with image=product.primary_image %}
-<article class="card product-card">
-    <a href="{{ product.get_absolute_url }}" class="product-card__media" tabindex="-1" aria-hidden="true">
+<article class="group flex h-full flex-col overflow-hidden rounded-(--radius-card) border border-line bg-white shadow-(--shadow-card) transition duration-300 hover:-translate-y-1 hover:border-navy-200 hover:shadow-(--shadow-lift) motion-reduce:hover:translate-y-0">
+    <a href="{{ product.get_absolute_url }}" tabindex="-1" aria-hidden="true"
+       class="relative flex aspect-[4/3] items-center justify-center overflow-hidden border-b border-line bg-canvas">
         {% if image %}
-            <img src="{{ image.image.url }}" alt="" class="card__image" loading="lazy" width="400" height="300">
+            <img src="{{ image.image.url }}" alt="" width="400" height="300" loading="lazy"
+                 class="size-full object-contain p-6 transition duration-500 group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
         {% else %}
-            <span class="card__image card__image--placeholder">
-                <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" focusable="false">
-                    <rect x="6" y="6" width="36" height="36" rx="8" fill="none" stroke="currentColor" stroke-width="2.5"/>
-                    <path d="M20 14h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="currentColor"/>
-                </svg>
-            </span>
+            <img src="{% category_art product.category %}" alt="" width="200" height="160" loading="lazy" class="w-3/5 opacity-90">
+            <span class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold text-muted">Photo not yet available</span>
         {% endif %}
     </a>
 
-    <span class="eyebrow">{{ product.category.name }}</span>
+    <div class="flex flex-1 flex-col p-5 sm:p-6">
+        <p class="eyebrow">{{ product.category.name }}</p>
 
-    <h3 class="product-card__heading">
-        <a href="{{ product.get_absolute_url }}" class="product-card__title">{{ product.name }}</a>
-    </h3>
+        <h3 class="mt-2 font-display text-xl leading-snug font-semibold">
+            <a href="{{ product.get_absolute_url }}" class="text-navy-900 no-underline hover:text-navy-700">{{ product.name }}</a>
+        </h3>
 
-    <p class="product-card__supplier">{{ product.company.name }}</p>
+        <p class="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-navy-700">
+            {{ product.company.name }}
+            {% if product.company.is_official_partner %}
+                <span class="rounded-full bg-teal-50 px-2 py-0.5 text-[0.7rem] font-bold text-teal-800">Official partner</span>
+            {% endif %}
+        </p>
 
-    {% if product.short_description %}
-        <p class="product-card__summary">{{ product.short_description }}</p>
-    {% elif product.description %}
-        <p class="product-card__summary">{{ product.description|truncatewords:25 }}</p>
-    {% endif %}
+        {% if product.short_description %}
+            <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted">{{ product.short_description }}</p>
+        {% elif product.description %}
+            <p class="mt-3 line-clamp-3 text-sm leading-6 text-muted">{{ product.description|truncatewords:30 }}</p>
+        {% endif %}
 
-    <div class="product-card__actions">
-        <a href="{{ product.get_absolute_url }}" class="button button--secondary button--small">
-            View details<span class="visually-hidden"> for {{ product.name }}</span>
-        </a>
-        <a href="{% url 'create_inquiry' %}?product={{ product.pk }}" class="button button--primary button--small">
-            Request a Quote<span class="visually-hidden"> for {{ product.name }}</span>
-        </a>
+        <div class="mt-auto flex flex-wrap items-center justify-between gap-3 pt-6">
+            <a href="{{ product.get_absolute_url }}" class="arrow-link inline-flex items-center gap-1.5 text-sm font-semibold text-navy-700">
+                View details<span class="sr-only"> for {{ product.name }}</span>
+                {% include "partials/icon_arrow.html" %}
+            </a>
+            <a href="{% url 'create_inquiry' %}?product={{ product.pk }}" class="btn btn-primary btn-sm">
+                Request a Quote<span class="sr-only"> for {{ product.name }}</span>
+            </a>
+        </div>
     </div>
 </article>
 {% endwith %}

@@ -6,55 +6,38 @@
 
 {% block content %}
 
-<section class="section section--muted page-header">
-    <div class="container">
-        <nav aria-label="Breadcrumb" class="breadcrumbs">
-            <a href="{% url 'home' %}">Home</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">Careers</span>
-        </nav>
-        <div class="section-heading">
-            <span class="eyebrow">Join Our Team</span>
-            <h1>Careers</h1>
-            <p>
-                Current vacancies at {{ company_contact.name }}
-            </p>
-        </div>
-    </div>
-</section>
+{% include "partials/page_header.html" with eyebrow="Join our team" title="Careers" intro="Current vacancies at Assam Healthcare." current="Careers" %}
 
-<section class="section">
-    <div class="container">
+<section class="bg-white py-16 lg:py-20">
+    <div class="mx-auto max-w-(--container-page) px-4 sm:px-6 lg:px-8">
         {% if jobs %}
-            <ul class="job-list">
+            <ul class="space-y-4">
                 {% for job in jobs %}
-                    <li class="card job-card">
-                        <div>
-                            <h2 class="job-card__title">
-                                <a href="{{ job.get_absolute_url }}">{{ job.title }}</a>
-                            </h2>
-                            <p class="job-card__meta">
-                                {% if job.department %}<span>{{ job.department }}</span>{% endif %}
-                                {% if job.location %}<span>{{ job.location }}</span>{% endif %}
-                                {% if job.employment_type %}<span>{{ job.employment_type }}</span>{% endif %}
-                            </p>
-                            {% if job.application_deadline %}
-                                <p class="job-card__deadline">Apply by {{ job.application_deadline|date:"j F Y" }}</p>
-                            {% endif %}
-                        </div>
-                        <a href="{{ job.get_absolute_url }}" class="button button--secondary button--small">
-                            View &amp; apply<span class="visually-hidden">: {{ job.title }}</span>
+                    <li>
+                        <a href="{{ job.get_absolute_url }}"
+                           class="group flex flex-col gap-5 rounded-(--radius-card) border border-line bg-white p-6 no-underline shadow-(--shadow-card) transition hover:-translate-y-0.5 hover:border-navy-200 hover:shadow-(--shadow-lift) sm:flex-row sm:items-center sm:justify-between sm:p-8 motion-reduce:hover:translate-y-0">
+                            <div>
+                                {% if job.department %}<p class="eyebrow">{{ job.department }}</p>{% endif %}
+                                <h2 class="mt-2 font-display text-2xl font-semibold text-navy-900 group-hover:text-navy-700">{{ job.title }}</h2>
+                                <ul class="mt-3 flex flex-wrap gap-2 text-sm text-muted">
+                                    {% if job.location %}<li class="rounded-full bg-canvas px-3 py-1">{{ job.location }}</li>{% endif %}
+                                    {% if job.employment_type %}<li class="rounded-full bg-canvas px-3 py-1">{{ job.employment_type }}</li>{% endif %}
+                                    {% if job.application_deadline %}<li class="rounded-full bg-teal-50 px-3 py-1 text-teal-800">Apply by {{ job.application_deadline|date:"j F Y" }}</li>{% endif %}
+                                </ul>
+                            </div>
+                            <span class="arrow-link inline-flex shrink-0 items-center gap-1.5 font-semibold text-teal-700">
+                                View &amp; apply {% include "partials/icon_arrow.html" %}
+                            </span>
                         </a>
                     </li>
                 {% endfor %}
             </ul>
         {% else %}
-            <div class="empty-state">
-                <h2>No open positions right now</h2>
-                <p>
-                    We do not have any vacancies at the moment. Please check this
-                    page again later, or call our office on
-                    <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>
+            <div class="rounded-(--radius-card) border border-dashed border-line-strong bg-canvas px-6 py-14 text-center">
+                <h2 class="font-display text-2xl font-semibold">No open positions right now</h2>
+                <p class="mx-auto mt-3 max-w-lg text-muted">
+                    We do not have any vacancies at the moment. Please check this page again later,
+                    or call our office on <a href="{{ company_contact.phone_href }}" class="font-semibold">{{ company_contact.phone }}</a>
                     to ask about future opportunities.
                 </p>
             </div>

@@ -6,26 +6,17 @@
 
 {% block content %}
 
-<section class="section section--muted page-header">
-    <div class="container">
-        <nav aria-label="Breadcrumb" class="breadcrumbs">
-            <a href="{% url 'home' %}">Home</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{{ page.title }}</span>
-        </nav>
-        <div class="section-heading">
-            <h1>{{ page.title }}</h1>
-        </div>
-    </div>
-</section>
+{% include "partials/page_header.html" with title=page.title current=page.title %}
 
-<section class="section">
-    <div class="container prose">
-        {% if page.content %}
-            {{ page.content|linebreaks }}
-        {% else %}
-            <p>This page has no content yet.</p>
-        {% endif %}
+<section class="bg-white py-16 lg:py-20">
+    <div class="mx-auto max-w-(--container-page) px-4 sm:px-6 lg:px-8">
+        <div class="rich-text">
+            {% if page.content %}
+                {{ page.content|linebreaks }}
+            {% else %}
+                <p>This page has no content yet.</p>
+            {% endif %}
+        </div>
     </div>
 </section>
 

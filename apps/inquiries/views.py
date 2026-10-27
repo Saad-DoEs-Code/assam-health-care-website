@@ -43,6 +43,7 @@ def _catalogue_for_script(catalogue):
             "id": product.pk,
             "name": product.name,
             "category": product.category.slug,
+            "category_name": product.category.name,
             "company": product.company.name,
             "variants": [
                 {"id": variant.pk, "name": variant.name}

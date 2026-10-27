@@ -5,6 +5,9 @@ __pycache__/
 venv/
 env/
 
+# Node (Tailwind build tooling)
+node_modules/
+
 # Django: local data, uploads and build output
 db.sqlite3
 db.sqlite3-journal

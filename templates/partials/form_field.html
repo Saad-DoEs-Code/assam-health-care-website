@@ -1,0 +1,21 @@
+{% comment %}
+One labelled form field with help text and errors.
+Variables: field (a bound field), full (span both columns).
+{% endcomment %}
+<div class="form-field {% if full %}sm:col-span-2{% endif %}">
+    <label for="{{ field.id_for_label }}">
+        {{ field.label }}
+        {% if field.field.required %}
+            <span class="text-danger-700" aria-hidden="true">*</span>
+        {% else %}
+            <span class="font-normal text-muted">(optional)</span>
+        {% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+    {% if field.errors %}
+        <div class="field-errors" role="alert" id="{{ field.id_for_label }}-errors">
+            {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+    {% endif %}
+</div>

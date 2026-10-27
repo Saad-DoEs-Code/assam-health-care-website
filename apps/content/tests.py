@@ -88,3 +88,69 @@ class ContactPageTests(TestCase):
         self.assertContains(response, "0300-9631291")
         self.assertContains(response, "Quality. Trust. Service.")
         self.assertNotContains(response, "mailto:")
+
+
+class StaticAssetTests(TestCase):
+    def test_every_static_reference_in_templates_exists(self):
+        import re
+        from pathlib import Path
+
+        from django.conf import settings
+
+        static_root = Path(settings.BASE_DIR) / "static"
+        missing = []
+        for template in (Path(settings.BASE_DIR) / "templates").rglob("*.html"):
+            for path in re.findall(r"{% static '([^']+)' %}", template.read_text(encoding="utf-8")):
+                if not (static_root / path).exists():
+                    missing.append(f"{template.name}: {path}")
+        self.assertEqual(missing, [])
+
+    def test_compiled_stylesheet_and_fonts_exist(self):
+        from pathlib import Path
+
+        from django.conf import settings
+
+        static_root = Path(settings.BASE_DIR) / "static"
+        for path in [
+            "css/site.css",
+            "fonts/manrope-latin-wght-normal.woff2",
+            "fonts/source-serif-4-latin-wght-normal.woff2",
+        ]:
+            with self.subTest(path=path):
+                self.assertTrue((static_root / path).exists())
+
+
+class CategoryArtTests(TestCase):
+    def test_artwork_exists_for_known_category_slugs(self):
+        from pathlib import Path
+
+        from django.conf import settings
+
+        art_dir = Path(settings.BASE_DIR) / "static" / "images" / "categories"
+        for slug in [
+            "dialysis",
+            "urology",
+            "interventional-cardiology",
+            "anesthesia-respiratory-care",
+            "gastroenterology-hepatobiliary",
+            "neurosurgery",
+            "interventional-radiology-biopsy",
+            "general-surgery",
+            "diagnostics-equipment",
+            "hygiene-disinfection",
+            "default",
+        ]:
+            with self.subTest(slug=slug):
+                self.assertTrue((art_dir / f"{slug}.svg").exists())
+
+    def test_lookup_uses_own_then_parent_then_default(self):
+        from apps.catalog.models import Category
+        from apps.content.templatetags.site_tags import category_art
+
+        dialysis = Category(name="Dialysis", slug="dialysis")
+        child = Category(name="Dialysis Needles", slug="dialysis-needles", parent=dialysis)
+        unknown = Category(name="New Range", slug="new-range")
+
+        self.assertTrue(category_art(dialysis).endswith("/images/categories/dialysis.svg"))
+        self.assertTrue(category_art(child).endswith("/images/categories/dialysis.svg"))
+        self.assertTrue(category_art(unknown).endswith("/images/categories/default.svg"))

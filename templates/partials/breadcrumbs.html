@@ -1,0 +1,19 @@
+{% comment %}
+Breadcrumb trail: Home / [parent] / [parent2] / current.
+Variables: parent_label, parent_url, parent2_label, parent2_url, current.
+{% endcomment %}
+<nav aria-label="Breadcrumb">
+    <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+        <li><a href="{% url 'home' %}" class="font-medium text-muted hover:text-navy-700">Home</a></li>
+        {% if parent_label %}
+            <li aria-hidden="true" class="text-line-strong">/</li>
+            <li><a href="{{ parent_url }}" class="font-medium text-muted hover:text-navy-700">{{ parent_label }}</a></li>
+        {% endif %}
+        {% if parent2_label %}
+            <li aria-hidden="true" class="text-line-strong">/</li>
+            <li><a href="{{ parent2_url }}" class="font-medium text-muted hover:text-navy-700">{{ parent2_label }}</a></li>
+        {% endif %}
+        <li aria-hidden="true" class="text-line-strong">/</li>
+        <li aria-current="page" class="font-semibold text-navy-900">{{ current }}</li>
+    </ol>
+</nav>

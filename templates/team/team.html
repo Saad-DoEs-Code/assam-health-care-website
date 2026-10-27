@@ -7,61 +7,52 @@
 
 {% block content %}
 
-<section class="section section--muted page-header">
-    <div class="container">
-        <nav aria-label="Breadcrumb" class="breadcrumbs">
-            <a href="{% url 'home' %}">Home</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">Sales Team</span>
-        </nav>
-        <div class="section-heading">
-            <span class="eyebrow">Sales Coverage</span>
-            <h1>Our Sales Team</h1>
-            <p>
-                Our representatives work with hospitals and healthcare
-                providers in each territory.
-            </p>
-        </div>
-    </div>
-</section>
+{% include "partials/page_header.html" with eyebrow="Sales coverage" title="Our sales team" intro="Our representatives work with hospitals and healthcare providers in each territory." current="Sales Team" %}
 
 {% if territories %}
-<section class="section" aria-labelledby="territories-heading">
-    <div class="container">
-        <h2 id="territories-heading">Territories</h2>
-        {% include "team/partials/territory_list.html" %}
+<section class="bg-white py-16 lg:py-20" aria-labelledby="territories-heading">
+    <div class="mx-auto max-w-(--container-page) px-4 sm:px-6 lg:px-8">
+        {% include "partials/section_heading.html" with eyebrow="Territories" title="Where we work" heading_id="territories-heading" %}
+        <div class="mt-10">
+            {% include "team/partials/territory_list.html" %}
+        </div>
     </div>
 </section>
 {% endif %}
 
-<section class="section section--muted" aria-labelledby="people-heading">
-    <div class="container">
-        <h2 id="people-heading">Team members</h2>
+<section class="border-t border-line bg-canvas py-16 lg:py-20" aria-labelledby="people-heading">
+    <div class="mx-auto max-w-(--container-page) px-4 sm:px-6 lg:px-8">
+        {% include "partials/section_heading.html" with eyebrow="People" title="Team members" heading_id="people-heading" %}
 
         {% if employees %}
-            <div class="team-grid">
+            <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {% for employee in employees %}
-                    <article class="card employee-card" id="employee-{{ employee.pk }}">
-                        {% if employee.photo %}
-                            <img src="{{ employee.photo.url }}" alt="Photo of {{ employee.name }}" class="employee-card__photo" loading="lazy" width="96" height="96">
-                        {% else %}
-                            <span class="employee-card__photo employee-card__photo--placeholder" aria-hidden="true">{{ employee.name|slice:":1" }}</span>
-                        {% endif %}
-
-                        <h3>{{ employee.name }}</h3>
-                        <p class="employee-card__designation">{{ employee.designation }}</p>
+                    <article class="flex h-full flex-col rounded-(--radius-card) border border-line bg-white p-7 shadow-(--shadow-card)" id="employee-{{ employee.pk }}">
+                        <div class="flex items-center gap-4">
+                            {% if employee.photo %}
+                                <img src="{{ employee.photo.url }}" alt="Photo of {{ employee.name }}" width="80" height="80" loading="lazy" class="size-20 rounded-full object-cover ring-4 ring-teal-50">
+                            {% else %}
+                                <span class="flex size-20 items-center justify-center rounded-full bg-navy-50 font-display text-3xl font-semibold text-navy-700 ring-4 ring-teal-50" aria-hidden="true" data-photo-placeholder>{{ employee.name|slice:":1" }}</span>
+                            {% endif %}
+                            <div>
+                                <h3 class="font-display text-xl font-semibold">{{ employee.name }}</h3>
+                                <p class="text-sm font-semibold text-teal-700">{{ employee.designation }}</p>
+                            </div>
+                        </div>
 
                         {% if employee.active_territories %}
-                            <p class="employee-card__territories">
-                                {% for territory in employee.active_territories %}{{ territory.name }}{% if not forloop.last %} &middot; {% endif %}{% endfor %}
-                            </p>
+                            <ul class="mt-5 flex flex-wrap gap-2">
+                                {% for territory in employee.active_territories %}
+                                    <li class="rounded-full bg-canvas px-3 py-1 text-xs font-semibold text-navy-800">{{ territory.name }}</li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
 
                         {% if employee.bio %}
-                            <p>{{ employee.bio|linebreaksbr }}</p>
+                            <p class="mt-5 text-sm leading-6 text-muted">{{ employee.bio|linebreaksbr }}</p>
                         {% endif %}
 
-                        <ul class="employee-card__contact">
+                        <ul class="mt-auto space-y-1.5 border-t border-line pt-5 text-sm font-semibold [overflow-wrap:anywhere]">
                             {% if employee.phone %}
                                 <li><a href="{{ employee.phone|tel_href }}">Call {{ employee.phone }}</a></li>
                             {% endif %}
@@ -73,25 +64,15 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="empty-state">
-                <p>
-                    Please contact our office on
-                    <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>
-                    and we will put you in touch with your area representative.
-                </p>
-            </div>
+            <p class="mt-10 rounded-(--radius-card) border border-dashed border-line-strong bg-white p-8 text-muted">
+                Please contact our office on
+                <a href="{{ company_contact.phone_href }}" class="font-semibold">{{ company_contact.phone }}</a>
+                and we will put you in touch with your area representative.
+            </p>
         {% endif %}
     </div>
 </section>
 
-<section class="section contact-cta">
-    <div class="container contact-cta__inner">
-        <div>
-            <h2>Need a quotation?</h2>
-            <p>Send your product list online and the right representative will follow up.</p>
-        </div>
-        <a href="{% url 'create_inquiry' %}" class="button button--light">Request a Quote</a>
-    </div>
-</section>
+{% include "partials/quote_cta.html" with heading="Need a quotation?" %}
 
 {% endblock %}

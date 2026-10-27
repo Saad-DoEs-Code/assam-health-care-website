@@ -1,5 +1,5 @@
 {% load static %}<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-pt-24">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,25 +27,26 @@
         <link rel="icon" href="{% static 'images/AHC_Logo.jpeg' %}">
     {% endif %}
 
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
-    {% block extra_css %}{% endblock %}
+    <link rel="preload" href="{% static 'fonts/manrope-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="{% static 'fonts/source-serif-4-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
 </head>
 
-<body>
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+<body class="flex min-h-screen flex-col">
+    <a href="#main-content"
+       class="sr-only z-[60] rounded-full bg-navy-700 px-5 py-3 font-semibold text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:text-white">
+        Skip to main content
+    </a>
 
     {% include "partials/navbar.html" %}
 
-    <main id="main-content" tabindex="-1">
-        {% block content %}
-        {% endblock %}
+    <main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
+        {% block content %}{% endblock %}
     </main>
 
     {% include "partials/footer.html" %}
 
     <script src="{% static 'js/main.js' %}" defer></script>
-
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,28 +1,47 @@
 {% load static %}
-<header class="site-header">
-    <nav class="navbar container" aria-label="Main navigation">
-        <a class="navbar__brand" href="{% url 'home' %}">
+<header class="sticky top-0 z-50 border-b border-line/80 bg-white/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/80">
+    <nav class="mx-auto flex max-w-(--container-page) items-center justify-between gap-6 px-4 py-3 sm:px-6 lg:px-8" aria-label="Main navigation">
+        <a href="{% url 'home' %}" class="group flex min-w-0 items-center gap-3 no-underline">
             {% if site_settings and site_settings.logo %}
-                <img src="{{ site_settings.logo.url }}" alt="" class="navbar__logo" width="44" height="44">
+                <img src="{{ site_settings.logo.url }}" alt="" width="44" height="44" class="size-11 shrink-0 rounded-full border border-line bg-white object-contain p-0.5">
             {% else %}
-                <img src="{% static 'images/AHC_Logo.jpeg' %}" alt="" class="navbar__logo" width="44" height="44">
+                <img src="{% static 'images/AHC_Logo.jpeg' %}" alt="" width="44" height="44" class="size-11 shrink-0 rounded-full border border-line bg-white object-contain p-0.5">
             {% endif %}
-            <span class="navbar__title">{{ company_contact.name }}</span>
+            <span class="flex min-w-0 flex-col leading-tight">
+                <span class="truncate font-display text-lg font-semibold text-navy-800 group-hover:text-navy-700">Assam Healthcare</span>
+                <span class="truncate text-[0.7rem] font-semibold tracking-[0.14em] text-muted uppercase">(Pvt.) Ltd. &middot; Multan</span>
+                <span class="sr-only">{{ company_contact.name }} home</span>
+            </span>
         </a>
 
-        <button type="button" class="navbar__toggle" aria-expanded="false" aria-controls="primary-navigation" hidden data-nav-toggle>
-            <span class="navbar__toggle-bar" aria-hidden="true"></span>
-            <span class="navbar__toggle-label">Menu</span>
-        </button>
-
-        <ul class="navbar__links" id="primary-navigation" data-nav-links>
-            <li><a href="{% url 'about' %}" {% if nav_section == "about" %}aria-current="page"{% endif %}>About</a></li>
-            <li><a href="{% url 'product_list' %}" {% if nav_section == "products" %}aria-current="page"{% endif %}>Products</a></li>
-            <li><a href="{% url 'partners' %}" {% if nav_section == "partners" %}aria-current="page"{% endif %}>Partners</a></li>
-            <li><a href="{% url 'team' %}" {% if nav_section == "team" %}aria-current="page"{% endif %}>Sales Team</a></li>
-            <li><a href="{% url 'job_list' %}" {% if nav_section == "careers" %}aria-current="page"{% endif %}>Careers</a></li>
-            <li><a href="{% url 'contact' %}" {% if nav_section == "contact" %}aria-current="page"{% endif %}>Contact</a></li>
-            <li class="navbar__cta"><a href="{% url 'create_inquiry' %}" class="button button--primary button--small">Request a Quote</a></li>
+        <ul class="hidden items-center gap-1 xl:flex">
+            {% include "partials/nav_links.html" %}
         </ul>
+
+        <div class="flex items-center gap-2">
+            <a href="{% url 'create_inquiry' %}" class="btn btn-primary btn-sm hidden whitespace-nowrap sm:inline-flex">
+                Request a Quote
+            </a>
+
+            <button type="button"
+                    class="inline-flex size-11 items-center justify-center rounded-full border border-line-strong text-navy-800 hover:border-navy-700 xl:hidden"
+                    aria-expanded="false" aria-controls="mobile-menu" hidden data-nav-toggle>
+                <span class="sr-only" data-nav-toggle-label>Open menu</span>
+                <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <path d="M4 7h16M4 12h16M4 17h16" data-icon-open/>
+                    <path d="M6 6l12 12M18 6 6 18" data-icon-close hidden/>
+                </svg>
+            </button>
+        </div>
     </nav>
+
+    {# Visible without JavaScript; main.js turns it into a toggled menu. #}
+    <div id="mobile-menu" class="border-t border-line bg-white xl:hidden" data-nav-panel>
+        <ul class="mx-auto flex max-w-(--container-page) flex-col gap-1 px-4 py-3 sm:px-6">
+            {% include "partials/nav_links.html" with mobile=True %}
+            <li class="pt-2 sm:hidden">
+                <a href="{% url 'create_inquiry' %}" class="btn btn-primary w-full">Request a Quote</a>
+            </li>
+        </ul>
+    </div>
 </header>

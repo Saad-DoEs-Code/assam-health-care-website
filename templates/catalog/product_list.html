@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load site_tags %}
 
 {% block title %}{% if selected_category_obj %}{{ selected_category_obj.name }} | {% endif %}Product Catalogue | {{ company_contact.name }}{% endblock %}
 
@@ -8,130 +9,163 @@
 
 {% block content %}
 
-<section class="section section--muted page-header">
-    <div class="container">
-        <nav aria-label="Breadcrumb" class="breadcrumbs">
-            <a href="{% url 'home' %}">Home</a>
-            <span aria-hidden="true">/</span>
-            {% if selected_category_obj %}
-                <a href="{% url 'product_list' %}">Products</a>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">{{ selected_category_obj.name }}</span>
-            {% else %}
-                <span aria-current="page">Products</span>
-            {% endif %}
-        </nav>
+{# ---------- Header with search ---------- #}
+<section class="relative overflow-hidden border-b border-line bg-canvas">
+    <div class="bg-grid bg-grid-fade pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-(--container-page) px-4 pt-8 pb-10 sm:px-6 lg:px-8 lg:pt-10">
+        {% if selected_category_obj %}
+            {% url 'product_list' as products_url %}
+            {% include "partials/breadcrumbs.html" with parent_label="Products" parent_url=products_url current=selected_category_obj.name %}
+        {% else %}
+            {% include "partials/breadcrumbs.html" with current="Products" %}
+        {% endif %}
 
-        <div class="section-heading">
-            <span class="eyebrow">Product Catalogue</span>
-            <h1>{% if selected_category_obj %}{{ selected_category_obj.name }}{% else %}Our Products{% endif %}</h1>
-            <p>
-                {% if selected_category_obj.description %}
-                    {{ selected_category_obj.description }}
-                {% else %}
-                    Browse the products we supply and request a quotation
-                    for one or several products at once.
+        <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div class="flex items-center gap-6">
+                {% if selected_category_obj %}
+                    <img src="{% category_art selected_category_obj %}" alt="" width="200" height="160" class="hidden w-36 shrink-0 rounded-2xl border border-line bg-white sm:block">
                 {% endif %}
-            </p>
+                <div class="max-w-2xl">
+                    <p class="eyebrow">Product catalogue</p>
+                    <h1 class="mt-3 font-display text-4xl leading-[1.08] font-semibold tracking-tight sm:text-5xl">
+                        {% if selected_category_obj %}{{ selected_category_obj.name }}{% else %}Our products{% endif %}
+                    </h1>
+                    <p class="mt-4 text-lg leading-8 text-muted">
+                        {% if selected_category_obj.description %}
+                            {{ selected_category_obj.description }}
+                        {% else %}
+                            Browse the products we supply and request a quotation for one or several at once.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <form method="get" action="{% url 'product_list' %}" class="catalog-filters" role="search">
-            <div>
-                <label for="search-query">Search products</label>
-                <input type="search" id="search-query" name="q" value="{{ search_query }}"
-                       maxlength="100" placeholder="Product, size, or manufacturer">
+        <form method="get" action="{% url 'product_list' %}" role="search"
+              class="mt-8 grid gap-3 rounded-2xl border border-line bg-white p-3 shadow-(--shadow-card) sm:grid-cols-[1fr_auto] lg:grid-cols-[1fr_16rem_auto]">
+            <div class="relative">
+                <label for="search-query" class="sr-only">Search products</label>
+                <svg class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6"/><path d="m13.5 13.5 3.5 3.5"/></svg>
+                <input type="search" id="search-query" name="q" value="{{ search_query }}" maxlength="100"
+                       placeholder="Search by product, size, or manufacturer" class="form-control border-transparent bg-canvas pl-12">
             </div>
-
-            <div>
-                <label for="category-filter">Product category</label>
-                <select id="category-filter" name="category">
+            <div class="sm:col-span-2 sm:row-start-2 lg:col-span-1 lg:row-start-auto">
+                <label for="category-filter" class="sr-only">Product category</label>
+                <select id="category-filter" name="category" class="form-control border-transparent bg-canvas">
                     <option value="">All categories</option>
                     {% for category in categories %}
-                        <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
-                            {{ category.name }}
-                        </option>
+                        <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>
                     {% endfor %}
                 </select>
             </div>
-
             {% if selected_company %}
                 <input type="hidden" name="company" value="{{ selected_company.slug }}">
             {% endif %}
-
-            <button type="submit" class="button button--primary">
-                Search
-            </button>
-
-            {% if is_filtered %}
-                <a href="{% url 'product_list' %}" class="button button--secondary">
-                    Clear filters
-                </a>
-            {% endif %}
+            <button type="submit" class="btn btn-primary sm:row-start-1 sm:col-start-2 lg:col-start-3">Search</button>
         </form>
     </div>
 </section>
 
-<section class="section">
-    <div class="container">
-        <p class="catalog-count" role="status">
-            {{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}
-            {% if search_query %} matching &ldquo;{{ search_query }}&rdquo;{% endif %}
-            {% if selected_company %} from {{ selected_company.name }}{% endif %}
-        </p>
+{# ---------- Results ---------- #}
+<section class="bg-white py-12 lg:py-16">
+    <div class="mx-auto grid max-w-(--container-page) gap-10 px-4 sm:px-6 lg:grid-cols-[15rem_1fr] lg:px-8">
 
-        {% if page_obj.object_list %}
-            <div class="card-grid">
-                {% for product in page_obj %}
-                    {% include "catalog/partials/product_card.html" %}
-                {% endfor %}
+        <aside class="hidden lg:block" aria-labelledby="category-nav-heading">
+            <div class="sticky top-28">
+                <h2 id="category-nav-heading" class="text-xs font-bold tracking-[0.16em] text-muted uppercase">Categories</h2>
+                <ul class="mt-4 space-y-1">
+                    <li>
+                        <a href="{% url 'product_list' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}"
+                           class="flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold no-underline hover:bg-canvas {% if not selected_category %}bg-navy-50 text-navy-800{% else %}text-ink{% endif %}"
+                           {% if not selected_category %}aria-current="true"{% endif %}>
+                            All products
+                        </a>
+                    </li>
+                    {% for category in categories %}
+                        <li>
+                            <a href="{% url 'product_list' %}?category={{ category.slug }}{% if search_query %}&amp;q={{ search_query|urlencode }}{% endif %}"
+                               class="flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm no-underline hover:bg-canvas {% if selected_category == category.slug %}bg-navy-50 font-semibold text-navy-800{% else %}text-ink{% endif %}"
+                               {% if selected_category == category.slug %}aria-current="true"{% endif %}>
+                                <span>{{ category.name }}</span>
+                                <span class="text-xs text-muted">{{ category.product_count }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
             </div>
-        {% else %}
-            <div class="empty-state">
+        </aside>
+
+        <div>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm text-muted" role="status">
+                    <span class="font-semibold text-navy-900">{{ page_obj.paginator.count }}</span>
+                    product{{ page_obj.paginator.count|pluralize }}
+                    {% if search_query %} matching &ldquo;{{ search_query }}&rdquo;{% endif %}
+                    {% if selected_company %} from {{ selected_company.name }}{% endif %}
+                </p>
                 {% if is_filtered %}
-                    <h2>No matching products</h2>
-                    <p>
-                        Try a different search term or category. If you cannot find
-                        what you need, describe it in a quotation request and our team
-                        will help.
-                    </p>
-                    <div class="empty-state__actions">
-                        <a href="{% url 'product_list' %}" class="button button--secondary">View all products</a>
-                        <a href="{% url 'create_inquiry' %}" class="button button--primary">Request a Quote</a>
-                    </div>
-                {% else %}
-                    <h2>Catalogue coming soon</h2>
-                    <p>
-                        Our online catalogue is being prepared. Please contact our team
-                        for product information and quotations.
-                    </p>
-                    <div class="empty-state__actions">
-                        <a href="{% url 'contact' %}" class="button button--primary">Contact Us</a>
-                    </div>
+                    <a href="{% url 'product_list' %}" class="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-semibold no-underline hover:border-navy-300">
+                        <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5 5 15"/></svg>
+                        Clear filters
+                    </a>
                 {% endif %}
             </div>
-        {% endif %}
 
-        {% if page_obj.has_other_pages %}
-            <nav class="pagination" aria-label="Product pages">
-                {% if page_obj.has_previous %}
-                    <a class="button button--secondary button--small" rel="prev"
-                       href="?{% if filter_querystring %}{{ filter_querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">
-                        &larr; Previous
-                    </a>
-                {% endif %}
+            {% if page_obj.object_list %}
+                <div class="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {% for product in page_obj %}
+                        {% include "catalog/partials/product_card.html" %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="mt-6 flex flex-col items-center rounded-(--radius-card) border border-dashed border-line-strong bg-canvas px-6 py-14 text-center">
+                    {% if selected_category_obj and not search_query %}
+                        <img src="{% category_art selected_category_obj %}" alt="" width="200" height="160" class="w-40">
+                        <h2 class="mt-4 font-display text-2xl font-semibold">{{ selected_category_obj.name }} listings are being added</h2>
+                        <p class="mt-3 max-w-lg text-muted">
+                            Products in this range are not yet listed online. Describe what you need
+                            in a quotation request and our sales team will help.
+                        </p>
+                    {% elif is_filtered %}
+                        <h2 class="font-display text-2xl font-semibold">No matching products</h2>
+                        <p class="mt-3 max-w-lg text-muted">
+                            Try a different search term or category. If you cannot find what you
+                            need, describe it in a quotation request and our team will help.
+                        </p>
+                    {% else %}
+                        <h2 class="font-display text-2xl font-semibold">Catalogue coming soon</h2>
+                        <p class="mt-3 max-w-lg text-muted">
+                            Our online catalogue is being prepared. Please contact our team for
+                            product information and quotations.
+                        </p>
+                    {% endif %}
+                    <div class="mt-6 flex flex-wrap justify-center gap-3">
+                        {% if is_filtered %}<a href="{% url 'product_list' %}" class="btn btn-secondary">View all products</a>{% endif %}
+                        <a href="{% url 'create_inquiry' %}" class="btn btn-primary">Request a Quote</a>
+                    </div>
+                </div>
+            {% endif %}
 
-                <span class="pagination__current" aria-current="page">
-                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-                </span>
-
-                {% if page_obj.has_next %}
-                    <a class="button button--secondary button--small" rel="next"
-                       href="?{% if filter_querystring %}{{ filter_querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">
-                        Next &rarr;
-                    </a>
-                {% endif %}
-            </nav>
-        {% endif %}
+            {% if page_obj.has_other_pages %}
+                <nav class="mt-12 flex flex-wrap items-center justify-center gap-3" aria-label="Product pages">
+                    {% if page_obj.has_previous %}
+                        <a class="btn btn-secondary btn-sm" rel="prev"
+                           href="?{% if filter_querystring %}{{ filter_querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">
+                            &larr; Previous
+                        </a>
+                    {% endif %}
+                    <span class="px-3 text-sm font-semibold text-muted" aria-current="page">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a class="btn btn-secondary btn-sm" rel="next"
+                           href="?{% if filter_querystring %}{{ filter_querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">
+                            Next &rarr;
+                        </a>
+                    {% endif %}
+                </nav>
+            {% endif %}
+        </div>
     </div>
 </section>
 

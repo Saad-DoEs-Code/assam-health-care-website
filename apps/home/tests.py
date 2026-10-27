@@ -43,9 +43,14 @@ class HomePageTests(TestCase):
     def test_categories_link_to_filtered_catalogue(self):
         response = self.client.get(reverse("home"))
         self.assertContains(response, self.dialysis.get_absolute_url())
-        # Categories without public products are omitted.
-        self.assertNotContains(response, "Empty Category")
+        # Every active category is shown, including ones without listings yet.
+        self.assertContains(response, self.empty_category.get_absolute_url())
         self.assertNotContains(response, "Hidden Category")
+
+    def test_categories_use_their_illustration(self):
+        response = self.client.get(reverse("home"))
+        # No artwork file exists for these test slugs, so the default is used.
+        self.assertContains(response, "/static/images/categories/default.svg")
 
     def test_empty_database_renders(self):
         from apps.catalog.models import Product
@@ -71,8 +76,8 @@ class SiteWideTests(TestCase):
     def test_navigation_links_resolve(self):
         response = self.client.get(reverse("home"))
         html = response.content.decode()
-        nav = html[html.index('id="primary-navigation"'):html.index("</nav>")]
-        hrefs = re.findall(r'href="([^"]+)"', nav)
+        header = html[html.index("<header"):html.index("</header>")]
+        hrefs = set(re.findall(r'href="([^"]+)"', header))
 
         self.assertGreaterEqual(len(hrefs), 7)
         for href in hrefs:

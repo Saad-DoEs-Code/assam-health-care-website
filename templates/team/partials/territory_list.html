@@ -1,21 +1,28 @@
 {% comment %}
-Territory cards. Expects `territories` with `active_cities` prefetched.
+Territory cards. Expects `territories` with `active_cities` prefetched
+(and optionally `public_employees`).
 {% endcomment %}
-<ul class="territory-grid">
+<ul class="grid content-start gap-4 sm:grid-cols-2">
     {% for territory in territories %}
-        <li class="territory-card" id="territory-{{ territory.slug }}">
-            <h3>{{ territory.name }}</h3>
-            {% if territory.active_cities %}
-                <p>
-                    {% for city in territory.active_cities %}{{ city.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
-                </p>
-            {% endif %}
-            {% if territory.public_employees %}
-                <p class="territory-card__team">
-                    Contact:
-                    {% for employee in territory.public_employees %}<a href="#employee-{{ employee.pk }}">{{ employee.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
-                </p>
-            {% endif %}
+        <li class="relative overflow-hidden rounded-2xl border border-line bg-white p-6" id="territory-{{ territory.slug }}">
+            <span class="absolute inset-y-0 left-0 w-1 bg-teal-600" aria-hidden="true"></span>
+            <div class="flex items-start gap-3">
+                <svg class="mt-1 size-5 shrink-0 text-teal-600" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M10 18s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10Z"/><circle cx="10" cy="8" r="2.2"/></svg>
+                <div>
+                    <h3 class="font-display text-lg font-semibold text-navy-900">{{ territory.name }}</h3>
+                    {% if territory.active_cities %}
+                        <p class="mt-1 text-sm leading-6 text-muted">
+                            {% for city in territory.active_cities %}{{ city.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                        </p>
+                    {% endif %}
+                    {% if territory.public_employees %}
+                        <p class="mt-3 text-sm text-muted">
+                            Contact:
+                            {% for employee in territory.public_employees %}<a href="#employee-{{ employee.pk }}" class="font-semibold">{{ employee.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
         </li>
     {% endfor %}
 </ul>

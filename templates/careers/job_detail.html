@@ -6,85 +6,58 @@
 
 {% block content %}
 
-<section class="section section--muted page-header">
-    <div class="container">
-        <nav aria-label="Breadcrumb" class="breadcrumbs">
-            <a href="{% url 'home' %}">Home</a>
-            <span aria-hidden="true">/</span>
-            <a href="{% url 'job_list' %}">Careers</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{{ job.title }}</span>
-        </nav>
-        <div class="section-heading">
-            <span class="eyebrow">{{ job.department|default:"Vacancy" }}</span>
-            <h1>{{ job.title }}</h1>
-            <p class="job-card__meta">
-                {% if job.location %}<span>{{ job.location }}</span>{% endif %}
-                {% if job.employment_type %}<span>{{ job.employment_type }}</span>{% endif %}
-                {% if job.application_deadline %}<span>Apply by {{ job.application_deadline|date:"j F Y" }}</span>{% endif %}
-            </p>
-        </div>
-    </div>
-</section>
+{% url 'job_list' as careers_url %}
+{% include "partials/page_header.html" with eyebrow=job.department|default:"Vacancy" title=job.title parent_label="Careers" parent_url=careers_url current=job.title %}
 
-<section class="section">
-    <div class="container job-layout">
-        <div class="prose">
-            <h2>About the role</h2>
-            {{ job.description|linebreaks }}
+<section class="bg-white py-14 lg:py-20">
+    <div class="mx-auto grid max-w-(--container-page) items-start gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_28rem] lg:px-8">
+        <div>
+            <ul class="flex flex-wrap gap-2 text-sm">
+                {% if job.location %}<li class="rounded-full bg-canvas px-3 py-1.5 font-semibold text-navy-800">{{ job.location }}</li>{% endif %}
+                {% if job.employment_type %}<li class="rounded-full bg-canvas px-3 py-1.5 font-semibold text-navy-800">{{ job.employment_type }}</li>{% endif %}
+                {% if job.application_deadline %}<li class="rounded-full bg-teal-50 px-3 py-1.5 font-semibold text-teal-800">Apply by {{ job.application_deadline|date:"j F Y" }}</li>{% endif %}
+            </ul>
 
-            {% if job.responsibilities %}
-                <h2>Responsibilities</h2>
-                {{ job.responsibilities|linebreaks }}
-            {% endif %}
+            <div class="rich-text mt-8">
+                <h2>About the role</h2>
+                {{ job.description|linebreaks }}
 
-            {% if job.requirements %}
-                <h2>Requirements</h2>
-                {{ job.requirements|linebreaks }}
-            {% endif %}
+                {% if job.responsibilities %}
+                    <h2>Responsibilities</h2>
+                    {{ job.responsibilities|linebreaks }}
+                {% endif %}
+
+                {% if job.requirements %}
+                    <h2>Requirements</h2>
+                    {{ job.requirements|linebreaks }}
+                {% endif %}
+            </div>
         </div>
 
-        <div class="inquiry-form-panel" id="apply">
-            <h2>Apply for this position</h2>
-            <p class="form-hint">
-                Complete the form below and attach your CV. We will contact
-                shortlisted applicants by phone or email.
+        <div class="rounded-(--radius-card) border border-line bg-white p-6 shadow-(--shadow-lift) sm:p-8 lg:sticky lg:top-28" id="apply">
+            <h2 class="font-display text-2xl font-semibold">Apply for this position</h2>
+            <p class="mt-2 text-sm leading-6 text-muted">
+                Complete the form and attach your CV. We will contact shortlisted
+                applicants by phone or email.
             </p>
 
-            <form method="post" action="{{ job.get_absolute_url }}#apply" enctype="multipart/form-data" class="application-form">
+            <form method="post" action="{{ job.get_absolute_url }}#apply" enctype="multipart/form-data" class="mt-6 space-y-5">
                 {% csrf_token %}
 
                 {% if form.errors %}
-                    <div class="form-alert" role="alert">
-                        <strong>Please correct the highlighted fields below.</strong>
-                        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                    <div class="rounded-xl border border-danger-200 bg-danger-50 p-4 text-sm text-danger-700" role="alert">
+                        <p class="font-semibold">Please correct the highlighted fields below.</p>
+                        {% for error in form.non_field_errors %}<p class="mt-1">{{ error }}</p>{% endfor %}
                     </div>
                 {% endif %}
 
-                <div class="inquiry-fields">
-                    {% for field in form.visible_fields %}
-                        {% if field.name != "website" %}
-                            <div class="form-field {% if field.name == 'cover_letter' or field.name == 'resume' %}form-field--full{% endif %}">
-                                <label for="{{ field.id_for_label }}">
-                                    {{ field.label }}
-                                    {% if field.field.required %}
-                                        <span aria-hidden="true">*</span>
-                                    {% else %}
-                                        <span class="form-field__optional">(optional)</span>
-                                    {% endif %}
-                                </label>
-                                {{ field }}
-                                {% if field.help_text %}
-                                    <small>{{ field.help_text }}</small>
-                                {% endif %}
-                                {% if field.errors %}
-                                    <div class="field-errors" role="alert">
-                                        {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
+                <div class="grid gap-5 sm:grid-cols-2">
+                    {% include "partials/form_field.html" with field=form.name full=True %}
+                    {% include "partials/form_field.html" with field=form.email %}
+                    {% include "partials/form_field.html" with field=form.phone %}
+                    {% include "partials/form_field.html" with field=form.city full=True %}
+                    {% include "partials/form_field.html" with field=form.cover_letter full=True %}
+                    {% include "partials/form_field.html" with field=form.resume full=True %}
                 </div>
 
                 <div class="form-trap" aria-hidden="true">
@@ -92,12 +65,12 @@
                     {{ form.website }}
                 </div>
 
-                <p class="form-required-note">
-                    Fields marked with <span aria-hidden="true">*</span> are required.
+                <p class="text-xs leading-5 text-muted">
+                    Fields marked <span class="text-danger-700" aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required.
                     Your details are used only to assess your application.
                 </p>
 
-                <button type="submit" class="button button--primary">Submit Application</button>
+                <button type="submit" class="btn btn-primary w-full">Submit application</button>
             </form>
         </div>
     </div>

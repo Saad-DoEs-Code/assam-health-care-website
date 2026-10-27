@@ -1,31 +1,35 @@
-<article class="card company-card">
-    <div class="company-card__logo">
+{% comment %}
+Company card. Expects `company` (with optional `product_count`).
+{% endcomment %}
+<article class="flex h-full flex-col rounded-(--radius-card) border border-line bg-white p-7 shadow-(--shadow-card)">
+    <div class="flex h-20 items-center">
         {% if company.logo %}
-            <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy">
+            <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy" class="max-h-16 w-auto max-w-[12rem] object-contain">
         {% else %}
-            <span class="company-card__initial" aria-hidden="true">{{ company.name|slice:":1" }}</span>
+            <span class="flex size-16 items-center justify-center rounded-2xl bg-navy-50 font-display text-3xl font-semibold text-navy-700" aria-hidden="true">{{ company.name|slice:":1" }}</span>
         {% endif %}
     </div>
 
-    <h3>{{ company.name }}</h3>
+    <h3 class="mt-5 font-display text-2xl font-semibold">{{ company.name }}</h3>
 
     {% if company.is_official_partner %}
-        <span class="badge">Official distribution partner</span>
+        <p class="mt-2"><span class="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-800" data-partner-badge>Official distribution partner</span></p>
     {% endif %}
 
     {% if company.description %}
-        <p>{{ company.description|linebreaksbr }}</p>
+        <p class="mt-4 text-sm leading-6 text-muted">{{ company.description|linebreaksbr }}</p>
     {% endif %}
 
-    <div class="company-card__links">
+    <div class="mt-auto flex flex-wrap gap-x-6 gap-y-2 pt-6 text-sm font-semibold">
         {% if company.product_count %}
-            <a href="{% url 'product_list' %}?company={{ company.slug }}">
-                View {{ company.product_count }} product{{ company.product_count|pluralize }}<span class="visually-hidden"> from {{ company.name }}</span>
+            <a href="{% url 'product_list' %}?company={{ company.slug }}" class="arrow-link inline-flex items-center gap-1.5 text-teal-700">
+                View {{ company.product_count }} product{{ company.product_count|pluralize }}<span class="sr-only"> from {{ company.name }}</span>
+                {% include "partials/icon_arrow.html" %}
             </a>
         {% endif %}
         {% if company.website %}
-            <a href="{{ company.website }}" target="_blank" rel="noopener noreferrer">
-                Website<span class="visually-hidden"> of {{ company.name }} (opens in a new tab)</span>
+            <a href="{{ company.website }}" target="_blank" rel="noopener noreferrer" class="text-navy-700">
+                Website<span class="sr-only"> of {{ company.name }} (opens in a new tab)</span>
             </a>
         {% endif %}
     </div>

@@ -1,23 +1,19 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Page Not Found | {{ company_contact.name }}{% endblock %}
 
 {% block meta_robots %}<meta name="robots" content="noindex">{% endblock %}
 
 {% block content %}
-<section class="section section--muted">
-    <div class="container">
-        <div class="inquiry-success">
-            <span class="eyebrow">Error 404</span>
-            <h1>Page not found</h1>
-            <p>
-                The page you are looking for may have been moved, or the
-                product or vacancy is no longer available.
-            </p>
-            <div class="inquiry-success__actions">
-                <a href="{% url 'product_list' %}" class="button button--primary">Browse Products</a>
-                <a href="{% url 'home' %}" class="button button--secondary">Return Home</a>
-            </div>
+<section class="relative overflow-hidden bg-canvas py-16 lg:py-24">
+    <div class="bg-grid bg-grid-fade pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
+        <img src="{% static 'images/categories/default.svg' %}" alt="" width="200" height="160" class="mx-auto w-48">
+        {% include "partials/confirmation.html" with eyebrow="Error 404" title="Page not found" message="The page you are looking for may have been moved, or the product or vacancy is no longer available." %}
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <a href="{% url 'product_list' %}" class="btn btn-primary">Browse Products</a>
+            <a href="{% url 'home' %}" class="btn btn-secondary">Return Home</a>
         </div>
     </div>
 </section>

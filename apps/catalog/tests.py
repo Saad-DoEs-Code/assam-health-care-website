@@ -122,7 +122,7 @@ class CatalogueListTests(TestCase):
 
     def test_products_without_images_render_placeholder(self):
         response = self.client.get(self.url)
-        self.assertContains(response, "card__image--placeholder")
+        self.assertContains(response, "Photo not yet available")
 
     def test_list_uses_constant_number_of_queries(self):
         for n in range(8):
@@ -167,12 +167,13 @@ class ProductDetailTests(TestCase):
         response = self.client.get(self.product.get_absolute_url())
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "<h1>Hollow Fiber Dialyzer</h1>", html=True)
+        self.assertEqual(response.context["product"], self.product)
+        self.assertRegex(response.content.decode(), r"<h1[^>]*>Hollow Fiber Dialyzer</h1>")
         self.assertContains(response, "Bain Medical")
         self.assertContains(response, "Official distribution partner")
         self.assertContains(response, "14-PF")
         self.assertNotContains(response, "Old Size")
-        self.assertContains(response, "Product image not yet available")
+        self.assertContains(response, "Product photo not yet available")
         self.assertContains(response, f"?product={self.product.pk}")
         self.assertContains(response, 'aria-label="Breadcrumb"')
 

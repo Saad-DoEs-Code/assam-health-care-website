@@ -6,19 +6,14 @@
 
 {% block content %}
 
-<section class="section section--muted">
-    <div class="container">
-        <div class="inquiry-success">
-            <div class="inquiry-success__icon" aria-hidden="true">&#10003;</div>
-            <span class="eyebrow">Careers</span>
-            <h1>Thank You for Applying</h1>
-            <p>
-                Your application has been received. We will contact
-                shortlisted applicants using the details you provided.
-            </p>
-            <div class="inquiry-success__actions">
-                <a href="{% url 'job_list' %}" class="button button--primary">View Other Vacancies</a>
-                <a href="{% url 'home' %}" class="button button--secondary">Return Home</a>
+<section class="relative overflow-hidden bg-canvas py-16 lg:py-24">
+    <div class="bg-grid bg-grid-fade pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-2xl px-4 sm:px-6">
+        <div class="rounded-[1.75rem] border border-line bg-white p-8 text-center shadow-(--shadow-lift) sm:p-12">
+            {% include "partials/confirmation.html" with success=True eyebrow="Careers" title="Thank You for Applying" message="Your application has been received. We will contact shortlisted applicants using the details you provided." %}
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="{% url 'job_list' %}" class="btn btn-primary">View other vacancies</a>
+                <a href="{% url 'home' %}" class="btn btn-secondary">Return Home</a>
             </div>
         </div>
     </div>

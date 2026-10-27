@@ -1,0 +1,17 @@
+{
+  "name": "assam-healthcare-frontend",
+  "private": true,
+  "description": "Tailwind CSS build for the Assam Healthcare Django website.",
+  "scripts": {
+    "build": "npm run fonts && npm run build:css",
+    "build:css": "tailwindcss --input ./frontend/tailwind.css --output ./static/css/site.css --minify",
+    "watch:css": "tailwindcss --input ./frontend/tailwind.css --output ./static/css/site.css --watch",
+    "fonts": "node ./frontend/copy-fonts.mjs"
+  },
+  "devDependencies": {
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/source-serif-4": "5.3.0",
+    "@tailwindcss/cli": "4.3.3",
+    "tailwindcss": "4.3.3"
+  }
+}

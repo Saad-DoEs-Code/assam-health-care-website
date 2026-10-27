@@ -6,40 +6,27 @@
 
 {% block content %}
 
-<section class="section section--muted">
-    <div class="container">
-        <div class="inquiry-success">
-            <div class="inquiry-success__icon" aria-hidden="true">
-                &#10003;
-            </div>
-
-            <span class="eyebrow">Request received</span>
-
-            <h1>Thank You for Your Request</h1>
-
-            <p>
-                Your request has been submitted successfully.
-                Our team will review your requirements and contact you
-                using the details you provided.
-            </p>
+<section class="relative overflow-hidden bg-canvas py-16 lg:py-24">
+    <div class="bg-grid bg-grid-fade pointer-events-none absolute inset-0" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-2xl px-4 sm:px-6">
+        <div class="rounded-[1.75rem] border border-line bg-white p-8 text-center shadow-(--shadow-lift) sm:p-12">
+            {% include "partials/confirmation.html" with success=True eyebrow="Request received" title="Thank You for Your Request" message="Your request has been submitted successfully. Our team will review your requirements and contact you using the details you provided." %}
 
             {% if inquiry %}
-                <div class="inquiry-summary">
-                    <p class="inquiry-summary__reference">
-                        Reference number: <strong>#{{ inquiry.pk }}</strong>
-                    </p>
+                <div class="mt-8 rounded-2xl bg-canvas p-5 text-left sm:p-6">
+                    <p class="text-sm text-muted">Reference number: <strong class="font-display text-lg text-navy-900">#{{ inquiry.pk }}</strong></p>
 
                     {% with items=inquiry.items.all %}
                         {% if items %}
-                            <h2 class="inquiry-summary__title">Products requested</h2>
-                            <ul class="inquiry-summary__list">
+                            <h2 class="mt-5 text-xs font-bold tracking-[0.16em] text-muted uppercase">Products requested</h2>
+                            <ul class="mt-3 divide-y divide-line">
                                 {% for item in items %}
-                                    <li>
+                                    <li class="flex items-start justify-between gap-4 py-3">
                                         <span>
-                                            {{ item.product.name }}{% if item.variant %} &middot; {{ item.variant.name }}{% endif %}
-                                            {% if item.notes %}<small>{{ item.notes }}</small>{% endif %}
+                                            <span class="font-semibold text-navy-900">{{ item.product.name }}</span>{% if item.variant %} &middot; {{ item.variant.name }}{% endif %}
+                                            {% if item.notes %}<small class="block text-muted">{{ item.notes }}</small>{% endif %}
                                         </span>
-                                        <span class="inquiry-summary__quantity">Qty {{ item.quantity }}</span>
+                                        <span class="shrink-0 rounded-full bg-white px-3 py-1 text-sm font-bold text-navy-800">Qty {{ item.quantity }}</span>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -48,19 +35,14 @@
                 </div>
             {% endif %}
 
-            <div class="inquiry-success__actions">
-                <a href="{% url 'product_list' %}" class="button button--primary">
-                    Browse Products
-                </a>
-
-                <a href="{% url 'home' %}" class="button button--secondary">
-                    Return Home
-                </a>
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="{% url 'product_list' %}" class="btn btn-primary">Browse Products</a>
+                <a href="{% url 'home' %}" class="btn btn-secondary">Return Home</a>
             </div>
 
-            <p class="inquiry-success__contact">
+            <p class="mt-8 text-sm text-muted">
                 Need immediate assistance?
-                <a href="{{ company_contact.phone_href }}">Call {{ company_contact.phone }}</a>
+                <a href="{{ company_contact.phone_href }}" class="font-semibold">Call {{ company_contact.phone }}</a>
             </p>
         </div>
     </div>

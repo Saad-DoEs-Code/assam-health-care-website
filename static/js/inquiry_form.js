@@ -86,11 +86,11 @@
       no_js_remove.remove();
     }
 
-    const header = row.querySelector(".quote-item__header");
-    const name = row.querySelector(".quote-item__name");
+    const header = row.querySelector("[data-item-header]");
+    const name = row.querySelector("[data-item-name]") || row.querySelector("h3");
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "button button--small button--ghost";
+    button.className = "btn btn-sm btn-ghost-danger shrink-0";
     button.textContent = "Remove";
     button.setAttribute("aria-label", "Remove " + (name ? name.textContent.trim() : "product"));
     button.addEventListener("click", function () {
@@ -112,7 +112,7 @@
 
     row.dataset.productId = String(product.id);
     row.querySelector("[data-item-name]").textContent = product.name;
-    row.querySelector("[data-item-meta]").textContent = product.company;
+    row.querySelector("[data-item-meta]").textContent = product.company + " · " + product.category_name;
     row.querySelector("[data-item-product]").value = String(product.id);
 
     const variant_field = row.querySelector("[data-item-variant-field]");
@@ -131,6 +131,7 @@
     } else {
       // No variants: do not show an empty selector.
       variant_field.remove();
+      row.querySelector("[data-item-quantity-field]").classList.add("sm:max-w-40");
     }
 
     total_forms_input.value = String(index + 1);
@@ -206,7 +207,7 @@
 
     if (!matches.length) {
       const empty = document.createElement("li");
-      empty.className = "product-picker__empty";
+      empty.className = "px-4 py-3 text-sm text-muted";
       empty.textContent = "No products match your search. Try another term or category, or describe the product in the message field.";
       results_list.appendChild(empty);
       return;
@@ -214,13 +215,15 @@
 
     matches.slice(0, MAX_RESULTS).forEach(function (product) {
       const item = document.createElement("li");
-      item.className = "product-picker__result";
+      item.className = "flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between";
 
       const text = document.createElement("div");
+      text.className = "min-w-0";
       const name = document.createElement("strong");
+      name.className = "block font-semibold text-navy-900";
       name.textContent = product.name;
       const meta = document.createElement("span");
-      meta.className = "product-picker__meta";
+      meta.className = "block text-sm text-muted";
       meta.textContent = product.company + (product.variants.length ? " · " + product.variants.length + " sizes" : "");
       text.appendChild(name);
       text.appendChild(meta);
@@ -228,7 +231,14 @@
       const already_added = rows_for_product(product.id).length > 0;
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "button button--small " + (already_added ? "button--secondary" : "button--primary");
+      // Full class names are written out so Tailwind can find them.
+      if (!already_added) {
+        button.className = "btn btn-sm btn-primary shrink-0";
+      } else if (product.variants.length) {
+        button.className = "btn btn-sm btn-secondary shrink-0";
+      } else {
+        button.className = "btn btn-sm btn-added shrink-0";
+      }
       button.textContent = already_added ? (product.variants.length ? "Add another size" : "Added ✓") : "Add";
       button.setAttribute("aria-label", (already_added && !product.variants.length ? "Already added: " : "Add ") + product.name);
       button.addEventListener("click", function () {
@@ -242,7 +252,7 @@
 
     if (matches.length > MAX_RESULTS) {
       const more = document.createElement("li");
-      more.className = "product-picker__empty";
+      more.className = "px-4 py-3 text-sm text-muted";
       more.textContent = "Showing " + MAX_RESULTS + " of " + matches.length + " products. Refine your search to see more.";
       results_list.appendChild(more);
     }

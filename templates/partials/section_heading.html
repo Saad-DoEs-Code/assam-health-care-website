@@ -1,0 +1,8 @@
+{% comment %}
+Section heading. Variables: eyebrow, title, intro, heading_id.
+{% endcomment %}
+<div class="max-w-2xl">
+    {% if eyebrow %}<p class="eyebrow">{{ eyebrow }}</p>{% endif %}
+    <h2 {% if heading_id %}id="{{ heading_id }}"{% endif %} class="mt-3 font-display text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">{{ title }}</h2>
+    {% if intro %}<p class="mt-4 text-lg leading-8 text-muted">{{ intro }}</p>{% endif %}
+</div>

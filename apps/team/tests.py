@@ -49,7 +49,7 @@ class TeamPageTests(TestCase):
 
     def test_missing_photo_uses_placeholder(self):
         response = self.client.get(reverse("team"))
-        self.assertContains(response, "employee-card__photo--placeholder")
+        self.assertContains(response, "data-photo-placeholder")
 
     def test_empty_team_shows_contact_alternative(self):
         Employee.objects.update(display_on_website=False)

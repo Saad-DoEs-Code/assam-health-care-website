@@ -6,67 +6,47 @@
 
 {% block content %}
 
-<section class="section section--muted page-header">
-    <div class="container">
-        <nav aria-label="Breadcrumb" class="breadcrumbs">
-            <a href="{% url 'home' %}">Home</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">Contact</span>
-        </nav>
-        <div class="section-heading">
-            <span class="eyebrow">{{ company_contact.tagline }}</span>
-            <h1>Contact Us</h1>
-            <p>
-                Call our office or send a request online. For quotations,
-                the online form lets you list every product you need.
-            </p>
-        </div>
-    </div>
-</section>
+{% include "partials/page_header.html" with eyebrow=company_contact.tagline title="Contact us" intro="Call our office or send a request online. For quotations, the online form lets you list every product you need." current="Contact" %}
 
-<section class="section">
-    <div class="container contact-layout">
-        <address class="contact-card">
-            <h2>{{ company_contact.name }}</h2>
-
-            <dl class="contact-card__list">
+<section class="bg-white py-16 lg:py-24">
+    <div class="mx-auto grid max-w-(--container-page) items-start gap-8 px-4 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:px-8">
+        <address class="relative overflow-hidden rounded-[1.75rem] bg-navy-800 p-8 not-italic text-navy-200 sm:p-10">
+            <div class="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-teal-600/25 blur-3xl" aria-hidden="true"></div>
+            <h2 class="relative font-display text-2xl font-semibold text-white sm:text-3xl">{{ company_contact.name }}</h2>
+            <dl class="relative mt-8 space-y-6">
                 <div>
-                    <dt>Office</dt>
-                    <dd>{{ company_contact.address|linebreaksbr }}</dd>
+                    <dt class="text-xs font-bold tracking-[0.16em] text-teal-200 uppercase">Phone</dt>
+                    <dd class="mt-1"><a href="{{ company_contact.phone_href }}" class="font-display text-3xl font-semibold text-white no-underline hover:text-teal-100">{{ company_contact.phone }}</a></dd>
                 </div>
                 <div>
-                    <dt>Phone</dt>
-                    <dd><a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a></dd>
+                    <dt class="text-xs font-bold tracking-[0.16em] text-teal-200 uppercase">Office</dt>
+                    <dd class="mt-1 text-lg leading-8 text-white">{{ company_contact.address|linebreaksbr }}</dd>
                 </div>
                 {% if company_contact.email %}
                     <div>
-                        <dt>Email</dt>
-                        <dd><a href="mailto:{{ company_contact.email }}">{{ company_contact.email }}</a></dd>
+                        <dt class="text-xs font-bold tracking-[0.16em] text-teal-200 uppercase">Email</dt>
+                        <dd class="mt-1"><a href="mailto:{{ company_contact.email }}" class="text-lg font-semibold text-white">{{ company_contact.email }}</a></dd>
                     </div>
                 {% endif %}
                 {% if company_contact.whatsapp_href %}
                     <div>
-                        <dt>WhatsApp</dt>
-                        <dd><a href="{{ company_contact.whatsapp_href }}" target="_blank" rel="noopener">{{ company_contact.whatsapp }}</a></dd>
+                        <dt class="text-xs font-bold tracking-[0.16em] text-teal-200 uppercase">WhatsApp</dt>
+                        <dd class="mt-1"><a href="{{ company_contact.whatsapp_href }}" target="_blank" rel="noopener" class="text-lg font-semibold text-white">{{ company_contact.whatsapp }}</a></dd>
                     </div>
                 {% endif %}
             </dl>
         </address>
 
-        <div class="contact-actions">
-            <div class="card">
-                <h2 class="card__title">Request a quotation</h2>
-                <p>
-                    Select one or several products, add quantities and sizes,
-                    and our sales team will prepare a quotation.
-                </p>
-                <a href="{% url 'create_inquiry' %}" class="button button--primary">Request a Quote</a>
+        <div class="grid gap-5">
+            <div class="rounded-(--radius-card) border border-line p-7">
+                <h2 class="font-display text-2xl font-semibold">Request a quotation</h2>
+                <p class="mt-2 leading-7 text-muted">Select one or several products, add quantities and sizes, and our sales team will prepare a quotation.</p>
+                <a href="{% url 'create_inquiry' %}" class="btn btn-primary mt-5">Request a Quote</a>
             </div>
-
-            <div class="card">
-                <h2 class="card__title">Speak to your area representative</h2>
-                <p>Find the sales team member responsible for your territory.</p>
-                <a href="{% url 'team' %}" class="button button--secondary">View Sales Team</a>
+            <div class="rounded-(--radius-card) border border-line p-7">
+                <h2 class="font-display text-2xl font-semibold">Speak to your area representative</h2>
+                <p class="mt-2 leading-7 text-muted">Find the sales team member responsible for your territory.</p>
+                <a href="{% url 'team' %}" class="btn btn-secondary arrow-link mt-5">View sales team {% include "partials/icon_arrow.html" %}</a>
             </div>
         </div>
     </div>
