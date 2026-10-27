@@ -75,7 +75,8 @@ Tests live in each app's `tests.py`; shared test-data helpers are in
 Companies (partner flag, logo), categories, products (variants, images with a
 single primary image, documents with "public" flag), territories, cities,
 employees (display flag), inquiries with their items, jobs and applications,
-CMS pages, and Site Settings (one record: name, tagline, phone, email,
+CMS pages, a leadership (CEO) message — shown on the homepage and About
+page only while published — and Site Settings (one record: name, tagline, phone, email,
 WhatsApp, address, logo, favicon). Email and WhatsApp appear on the site only
 when filled in.
 

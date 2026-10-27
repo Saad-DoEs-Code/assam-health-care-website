@@ -154,3 +154,85 @@ class CategoryArtTests(TestCase):
         self.assertTrue(category_art(dialysis).endswith("/images/categories/dialysis.svg"))
         self.assertTrue(category_art(child).endswith("/images/categories/dialysis.svg"))
         self.assertTrue(category_art(unknown).endswith("/images/categories/default.svg"))
+
+
+class LeadershipMessageTests(TestCase):
+    def make_message(self, **kwargs):
+        from apps.content.models import LeadershipMessage
+
+        defaults = {
+            "name": "Test Leader",
+            "designation": "Chief Executive Officer",
+            "message": "First paragraph of the message.\n\nSecond <b>paragraph</b>.",
+            "is_published": True,
+        }
+        defaults.update(kwargs)
+        return LeadershipMessage.objects.create(**defaults)
+
+    def test_hidden_when_no_message_exists(self):
+        for name in ["home", "about"]:
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name))
+                self.assertNotContains(response, "Leadership message")
+                self.assertIsNone(response.context["leadership_message"])
+
+    def test_hidden_while_unpublished(self):
+        self.make_message(is_published=False)
+        for name in ["home", "about"]:
+            with self.subTest(page=name):
+                response = self.client.get(reverse(name))
+                self.assertNotContains(response, "Test Leader")
+
+    def test_homepage_shows_excerpt_and_link(self):
+        self.make_message(excerpt="Our short quote for the homepage.")
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "Our short quote for the homepage.")
+        self.assertContains(response, "Test Leader")
+        self.assertContains(response, "Chief Executive Officer")
+        self.assertContains(response, f"{reverse('about')}#leadership-message")
+        self.assertNotContains(response, "Second &lt;b&gt;paragraph")
+
+    def test_homepage_falls_back_to_start_of_message(self):
+        self.make_message(excerpt="")
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "First paragraph of the message.")
+
+    def test_about_page_shows_full_message_escaped(self):
+        self.make_message()
+        response = self.client.get(reverse("about"))
+        self.assertContains(response, 'id="leadership-message"')
+        self.assertContains(response, "A message from Test Leader")
+        self.assertContains(response, "<p>First paragraph of the message.</p>", html=True)
+        self.assertContains(response, "Second &lt;b&gt;paragraph&lt;/b&gt;.")
+
+    def test_missing_photo_uses_placeholder(self):
+        self.make_message()
+        response = self.client.get(reverse("about"))
+        self.assertContains(response, "data-leadership-photo-placeholder")
+
+    def test_most_recently_updated_published_message_is_shown(self):
+        from apps.content.models import LeadershipMessage
+
+        older = self.make_message(name="Older Message")
+        self.make_message(name="Newer Message")
+        older.save()  # updating it makes it the most recent
+
+        self.assertEqual(LeadershipMessage.get_published(), older)
+
+    def test_photo_validation(self):
+        from django.core.exceptions import ValidationError
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        message = self.make_message()
+        message.photo = SimpleUploadedFile("portrait.gif", b"GIF89a")
+        with self.assertRaises(ValidationError):
+            message.full_clean()
+
+    def test_admin_lists_messages(self):
+        from django.contrib.auth import get_user_model
+
+        self.make_message()
+        user = get_user_model().objects.create_superuser("staff", "staff@example.com", "test-password-123")
+        self.client.force_login(user)
+        response = self.client.get(reverse("admin:content_leadershipmessage_changelist"))
+        self.assertContains(response, "Test Leader")

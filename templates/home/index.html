@@ -58,7 +58,7 @@
 
         {# Composition of category artwork from the database. #}
         {% if hero_categories %}
-            <div class="relative" aria-hidden="true">
+            <div class="relative isolate" aria-hidden="true">
                 <div class="absolute -inset-4 -z-10 rotate-2 rounded-[2rem] border border-navy-100 bg-white/50 sm:-inset-6"></div>
                 <div class="grid grid-cols-2 gap-4 rounded-[1.75rem] border border-line bg-white p-4 shadow-(--shadow-lift) sm:gap-5 sm:p-5">
                     {% for category in hero_categories %}
@@ -200,6 +200,38 @@
         </div>
     </div>
 </section>
+
+{# ========================= LEADERSHIP MESSAGE ===================== #}
+{# Shown only when a message is published in the admin. #}
+{% if leadership_message %}
+<section class="bg-white py-20 lg:py-28" aria-labelledby="leadership-heading">
+    <div class="mx-auto grid max-w-(--container-page) items-center gap-12 px-4 sm:px-6 lg:grid-cols-[22rem_1fr] lg:gap-20 lg:px-8">
+        {% include "content/partials/leadership_photo.html" %}
+
+        <figure>
+            <p class="eyebrow">Leadership message</p>
+            <h2 id="leadership-heading" class="sr-only">A message from {{ leadership_message.name }}</h2>
+            <svg class="mt-6 size-12 text-teal-600" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false"><path d="M8 36V24c0-8 4-14 13-16l2 4c-5 2-7 5-7 9h7v15zm22 0V24c0-8 4-14 13-16l2 4c-5 2-7 5-7 9h7v15z"/></svg>
+            <blockquote class="mt-4 font-display text-2xl leading-snug font-medium text-navy-900 sm:text-3xl sm:leading-snug">
+                {% if leadership_message.excerpt %}
+                    <p>{{ leadership_message.excerpt }}</p>
+                {% else %}
+                    <p>{{ leadership_message.message|truncatewords:40 }}</p>
+                {% endif %}
+            </blockquote>
+            <figcaption class="mt-8 flex flex-col gap-6 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <span>
+                    <span class="block font-semibold text-navy-900">{{ leadership_message.name }}</span>
+                    <span class="block text-sm text-muted">{{ leadership_message.designation }}, {{ company_contact.name }}</span>
+                </span>
+                <a href="{% url 'about' %}#leadership-message" class="arrow-link inline-flex items-center gap-1.5 font-semibold text-teal-700">
+                    Read the full message {% include "partials/icon_arrow.html" %}
+                </a>
+            </figcaption>
+        </figure>
+    </div>
+</section>
+{% endif %}
 
 {# ========================= FEATURED PRODUCTS ====================== #}
 {% if featured_products %}

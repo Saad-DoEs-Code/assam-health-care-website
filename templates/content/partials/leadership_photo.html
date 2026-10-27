@@ -1,0 +1,18 @@
+{% comment %}
+Portrait for the leadership message. Expects `leadership_message`.
+Any uploaded photo is cropped to the same 4:5 frame; without a photo the
+person's initial is shown instead.
+{% endcomment %}
+<div class="relative isolate mx-auto w-full max-w-sm">
+    <div class="absolute -right-3 -bottom-3 -z-10 h-full w-full rounded-[1.75rem] bg-teal-100" aria-hidden="true"></div>
+    {% if leadership_message.photo %}
+        <img src="{{ leadership_message.photo.url }}"
+             alt="Portrait of {{ leadership_message.name }}, {{ leadership_message.designation }}"
+             width="480" height="600" loading="lazy"
+             class="aspect-[4/5] w-full rounded-[1.75rem] border border-line bg-canvas object-cover object-top">
+    {% else %}
+        <div class="flex aspect-[4/5] w-full items-center justify-center rounded-[1.75rem] border border-line bg-navy-50" data-leadership-photo-placeholder>
+            <span class="font-display text-8xl font-semibold text-navy-300" aria-hidden="true">{{ leadership_message.name|slice:":1" }}</span>
+        </div>
+    {% endif %}
+</div>

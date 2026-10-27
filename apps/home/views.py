@@ -3,6 +3,7 @@ from django.shortcuts import render
 
 from apps.catalog.models import Category, Product
 from apps.companies.models import Company
+from apps.content.models import LeadershipMessage
 from apps.team.models import City, Territory
 from apps.team.views import public_employees
 
@@ -42,6 +43,7 @@ def home(request):
             )
         ),
         "team_preview": public_employees()[:3],
+        "leadership_message": LeadershipMessage.get_published(),
     }
 
     return render(

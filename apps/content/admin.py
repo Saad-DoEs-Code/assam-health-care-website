@@ -1,6 +1,7 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
-from .models import Page, SiteSettings
+from .models import LeadershipMessage, Page, SiteSettings
 
 
 @admin.register(Page)
@@ -67,3 +68,53 @@ class SiteSettingsAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(LeadershipMessage)
+class LeadershipMessageAdmin(admin.ModelAdmin):
+    # The website shows the most recently updated published message.
+    list_display = (
+        "name",
+        "designation",
+        "is_published",
+        "updated_at",
+    )
+
+    list_filter = ("is_published",)
+
+    search_fields = (
+        "name",
+        "designation",
+        "message",
+    )
+
+    readonly_fields = (
+        "photo_preview",
+        "created_at",
+        "updated_at",
+    )
+
+    fieldsets = (
+        (None, {"fields": ("name", "designation", ("photo", "photo_preview"))}),
+        ("Message", {"fields": ("message", "excerpt")}),
+        (
+            "Visibility",
+            {
+                "description": (
+                    "Nothing is shown on the website until this is published. "
+                    "If several messages are published, the most recently "
+                    "updated one is shown."
+                ),
+                "fields": ("is_published", ("created_at", "updated_at")),
+            },
+        ),
+    )
+
+    @admin.display(description="Preview")
+    def photo_preview(self, obj):
+        if obj.pk and obj.photo:
+            return format_html(
+                '<img src="{}" alt="" style="max-height:120px;border-radius:8px;">',
+                obj.photo.url,
+            )
+        return "—"
