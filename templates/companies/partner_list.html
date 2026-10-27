@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Our Partners | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}Manufacturers represented by {{ company_contact.name }}, Multan{% if partners %}, including {% for partner in partners %}{{ partner.name }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}.{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Partners</span>
+        </nav>
+        <div class="section-heading">
+            <span class="eyebrow">Our Network</span>
+            <h1>Partners &amp; Suppliers</h1>
+            <p>
+                The manufacturers whose products we distribute.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section" aria-labelledby="official-heading">
+    <div class="container">
+        <h2 id="official-heading">Official distribution partners</h2>
+
+        {% if partners %}
+            <div class="company-grid">
+                {% for company in partners %}
+                    {% include "companies/partials/company_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">Partner information will be published here soon.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% if suppliers %}
+<section class="section section--muted" aria-labelledby="suppliers-heading">
+    <div class="container">
+        <h2 id="suppliers-heading">Other suppliers</h2>
+        <p class="section-intro">Manufacturers whose products are also available through us.</p>
+        <div class="company-grid">
+            {% for company in suppliers %}
+                {% include "companies/partials/company_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

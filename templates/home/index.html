@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}{{ company_contact.name }} | Medical &amp; Surgical Supplies, Multan{% endblock %}
+
+{% block meta_description %}Assam Healthcare (Pvt.) Ltd., Multan, distributes medical consumables, surgical disposables, medical devices, and dialysis products to hospitals across Southern Punjab. Request a quotation online.{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container hero__layout">
+        <div class="hero__content">
+            <span class="eyebrow">Medical &amp; Surgical Supplies &middot; Multan, Pakistan</span>
+
+            <h1 class="hero__title">
+                Medical supplies for hospitals and
+                <span class="hero__highlight">healthcare providers.</span>
+            </h1>
+
+            <p class="hero__description">
+                {{ company_contact.name }} distributes medical consumables,
+                surgical disposables, medical devices, and dialysis products
+                to healthcare providers across Southern Punjab and beyond.
+            </p>
+
+            <div class="hero__actions">
+                <a href="{% url 'product_list' %}" class="button button--primary">
+                    Browse Products
+                </a>
+                <a href="{% url 'create_inquiry' %}" class="button button--secondary">
+                    Request a Quote
+                </a>
+            </div>
+
+            <p class="hero__trust">
+                <span class="hero__trust-mark" aria-hidden="true">✓</span>
+                {{ company_contact.tagline }}
+            </p>
+        </div>
+
+        <div class="hero__visual" aria-hidden="true">
+            <div class="hero__visual-top">
+                <span class="hero__visual-label">OUR COMMITMENT</span>
+                <span class="hero__visual-symbol">+</span>
+            </div>
+
+            <div class="hero__medical-icon">
+                <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                    <rect x="35" y="35" width="130" height="130" rx="28" fill="#153e75"/>
+                    <path d="M86 59h28v27h27v28h-27v27H86v-27H59V86h27z" fill="#ffffff"/>
+                    <circle cx="154" cy="46" r="18" fill="#0f8b8d"/>
+                    <path d="M146 46l5 5 10-11" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <p class="hero__visual-title">Quality. Trust. Service.</p>
+
+            <p class="hero__visual-description">
+                Supporting hospitals, clinics, and healthcare
+                professionals across our service region.
+            </p>
+
+            <div class="hero__visual-bottom">
+                <span>ASSAM HEALTHCARE</span>
+                <span>MULTAN, PAKISTAN</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- OFFICIAL PARTNERS -->
+{% if partners %}
+<section class="section" aria-labelledby="partners-heading">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Official Distribution Partners</span>
+            <h2 id="partners-heading">Companies We Officially Represent</h2>
+            <p>
+                We are an official distributor for the following manufacturers.
+            </p>
+        </div>
+
+        <ul class="partner-grid">
+            {% for partner in partners %}
+                <li class="partner-card">
+                    {% if partner.logo %}
+                        <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" loading="lazy">
+                    {% else %}
+                        <span>{{ partner.name }}</span>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'partners' %}" class="card__link">About our partners →</a>
+    </div>
+</section>
+{% endif %}
+
+<!-- PRODUCT CATEGORIES -->
+{% if categories %}
+<section class="section section--muted" aria-labelledby="categories-heading">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Our Portfolio</span>
+            <h2 id="categories-heading">Product Categories</h2>
+            <p>
+                Browse our catalogue by clinical area.
+            </p>
+        </div>
+
+        <ul class="category-grid">
+            {% for category in categories %}
+                <li>
+                    <a href="{{ category.get_absolute_url }}" class="category-tile">
+                        <span class="category-tile__name">{{ category.name }}</span>
+                        <span class="category-tile__count">{{ category.product_count }} product{{ category.product_count|pluralize }}</span>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endif %}
+
+<!-- FEATURED PRODUCTS -->
+{% if featured_products %}
+<section class="section" aria-labelledby="featured-heading">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Selected Products</span>
+            <h2 id="featured-heading">Featured Products</h2>
+            <p>
+                A selection from our catalogue. Contact our team for
+                specifications and quotations.
+            </p>
+        </div>
+
+        <div class="card-grid">
+            {% for product in featured_products %}
+                {% include "catalog/partials/product_card.html" %}
+            {% endfor %}
+        </div>
+
+        <a href="{% url 'product_list' %}" class="card__link">View the full catalogue →</a>
+    </div>
+</section>
+{% endif %}
+
+<!-- ABOUT / VALUE PROPOSITION -->
+<section class="section section--muted" aria-labelledby="about-heading">
+    <div class="container about__layout">
+        <div class="about__content">
+            <span class="eyebrow">About Assam Healthcare</span>
+
+            <h2 id="about-heading">Connecting Healthcare Providers with Medical Supplies</h2>
+
+            <p>
+                Based in Multan, {{ company_contact.name }} distributes medical
+                consumables, surgical disposables, medical devices, and
+                dialysis-related products.
+            </p>
+
+            <p>
+                We work to build dependable relationships with hospitals and
+                procurement teams through product quality, professional
+                service, and responsive support.
+            </p>
+
+            <a href="{% url 'about' %}" class="button button--primary">
+                More About Us
+            </a>
+        </div>
+
+        <div class="about__panel">
+            <div class="about__value">
+                <span class="about__value-number" aria-hidden="true">01</span>
+                <div>
+                    <h3>Quality</h3>
+                    <p>Careful attention to the products we supply.</p>
+                </div>
+            </div>
+
+            <div class="about__value">
+                <span class="about__value-number" aria-hidden="true">02</span>
+                <div>
+                    <h3>Trust</h3>
+                    <p>Professional relationships built on integrity.</p>
+                </div>
+            </div>
+
+            <div class="about__value">
+                <span class="about__value-number" aria-hidden="true">03</span>
+                <div>
+                    <h3>Service</h3>
+                    <p>Responsive support for healthcare providers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SALES COVERAGE -->
+{% if territories %}
+<section class="section" aria-labelledby="coverage-heading">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Sales Coverage</span>
+            <h2 id="coverage-heading">Where We Work</h2>
+            <p>
+                Our sales team covers the following territories.
+            </p>
+        </div>
+
+        {% include "team/partials/territory_list.html" %}
+
+        <a href="{% url 'team' %}" class="card__link">Meet our sales team →</a>
+    </div>
+</section>
+{% endif %}
+
+<!-- CONTACT CALL TO ACTION -->
+<section class="section contact-cta" aria-labelledby="cta-heading">
+    <div class="container contact-cta__inner">
+        <div>
+            <span class="eyebrow">Let's Connect</span>
+            <h2 id="cta-heading">Looking for Medical Products?</h2>
+            <p>
+                Send a quotation request for one or several products, or call
+                our team on <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>.
+            </p>
+        </div>
+
+        <a href="{% url 'create_inquiry' %}" class="button button--light">
+            Request a Quote
+        </a>
+    </div>
+</section>
+
+{% endblock %}

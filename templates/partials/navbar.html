@@ -1,0 +1,28 @@
+{% load static %}
+<header class="site-header">
+    <nav class="navbar container" aria-label="Main navigation">
+        <a class="navbar__brand" href="{% url 'home' %}">
+            {% if site_settings and site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="" class="navbar__logo" width="44" height="44">
+            {% else %}
+                <img src="{% static 'images/AHC_Logo.jpeg' %}" alt="" class="navbar__logo" width="44" height="44">
+            {% endif %}
+            <span class="navbar__title">{{ company_contact.name }}</span>
+        </a>
+
+        <button type="button" class="navbar__toggle" aria-expanded="false" aria-controls="primary-navigation" hidden data-nav-toggle>
+            <span class="navbar__toggle-bar" aria-hidden="true"></span>
+            <span class="navbar__toggle-label">Menu</span>
+        </button>
+
+        <ul class="navbar__links" id="primary-navigation" data-nav-links>
+            <li><a href="{% url 'about' %}" {% if nav_section == "about" %}aria-current="page"{% endif %}>About</a></li>
+            <li><a href="{% url 'product_list' %}" {% if nav_section == "products" %}aria-current="page"{% endif %}>Products</a></li>
+            <li><a href="{% url 'partners' %}" {% if nav_section == "partners" %}aria-current="page"{% endif %}>Partners</a></li>
+            <li><a href="{% url 'team' %}" {% if nav_section == "team" %}aria-current="page"{% endif %}>Sales Team</a></li>
+            <li><a href="{% url 'job_list' %}" {% if nav_section == "careers" %}aria-current="page"{% endif %}>Careers</a></li>
+            <li><a href="{% url 'contact' %}" {% if nav_section == "contact" %}aria-current="page"{% endif %}>Contact</a></li>
+            <li class="navbar__cta"><a href="{% url 'create_inquiry' %}" class="button button--primary button--small">Request a Quote</a></li>
+        </ul>
+    </nav>
+</header>

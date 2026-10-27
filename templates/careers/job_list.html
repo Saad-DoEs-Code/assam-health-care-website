@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Careers | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}Current job vacancies at {{ company_contact.name }}, Multan.{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Careers</span>
+        </nav>
+        <div class="section-heading">
+            <span class="eyebrow">Join Our Team</span>
+            <h1>Careers</h1>
+            <p>
+                Current vacancies at {{ company_contact.name }}
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        {% if jobs %}
+            <ul class="job-list">
+                {% for job in jobs %}
+                    <li class="card job-card">
+                        <div>
+                            <h2 class="job-card__title">
+                                <a href="{{ job.get_absolute_url }}">{{ job.title }}</a>
+                            </h2>
+                            <p class="job-card__meta">
+                                {% if job.department %}<span>{{ job.department }}</span>{% endif %}
+                                {% if job.location %}<span>{{ job.location }}</span>{% endif %}
+                                {% if job.employment_type %}<span>{{ job.employment_type }}</span>{% endif %}
+                            </p>
+                            {% if job.application_deadline %}
+                                <p class="job-card__deadline">Apply by {{ job.application_deadline|date:"j F Y" }}</p>
+                            {% endif %}
+                        </div>
+                        <a href="{{ job.get_absolute_url }}" class="button button--secondary button--small">
+                            View &amp; apply<span class="visually-hidden">: {{ job.title }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-state">
+                <h2>No open positions right now</h2>
+                <p>
+                    We do not have any vacancies at the moment. Please check this
+                    page again later, or call our office on
+                    <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>
+                    to ask about future opportunities.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

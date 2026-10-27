@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{% if page.meta_title %}{{ page.meta_title }}{% else %}About Us | {{ company_contact.name }}{% endif %}{% endblock %}
+
+{% block meta_description %}{% if page.meta_description %}{{ page.meta_description }}{% else %}About {{ company_contact.name }}, a Multan-based distributor of medical consumables, surgical disposables, medical devices, and dialysis products.{% endif %}{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">About</span>
+        </nav>
+        <div class="section-heading">
+            <span class="eyebrow">{{ company_contact.tagline }}</span>
+            <h1>{% if page %}{{ page.title }}{% else %}About {{ company_contact.name }}{% endif %}</h1>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container about__layout about__layout--top">
+        <div class="prose">
+            {% if page and page.content %}
+                {{ page.content|linebreaks }}
+            {% else %}
+                <p>
+                    {{ company_contact.name }} is a medical and surgical supplies
+                    distributor headquartered in Multan, Pakistan.
+                </p>
+                <p>
+                    We distribute medical consumables, surgical disposables,
+                    medical devices, and dialysis-related products to hospitals,
+                    clinics, and healthcare procurement teams in Southern Punjab
+                    and other markets.
+                </p>
+                <p>
+                    Our sales team works directly with healthcare providers to
+                    understand their requirements and prepare quotations.
+                </p>
+            {% endif %}
+
+            {% if partners %}
+                <h2>Official distribution partners</h2>
+                <p>We are an official distributor for:</p>
+                <ul>
+                    {% for partner in partners %}
+                        <li>{{ partner.name }}</li>
+                    {% endfor %}
+                </ul>
+                <p><a href="{% url 'partners' %}">Learn more about our partners →</a></p>
+            {% endif %}
+        </div>
+
+        <div class="about__panel">
+            <div class="about__value">
+                <span class="about__value-number" aria-hidden="true">01</span>
+                <div>
+                    <h2 class="about__value-title">Quality</h2>
+                    <p>Careful attention to the products we supply.</p>
+                </div>
+            </div>
+            <div class="about__value">
+                <span class="about__value-number" aria-hidden="true">02</span>
+                <div>
+                    <h2 class="about__value-title">Trust</h2>
+                    <p>Professional relationships built on integrity.</p>
+                </div>
+            </div>
+            <div class="about__value">
+                <span class="about__value-number" aria-hidden="true">03</span>
+                <div>
+                    <h2 class="about__value-title">Service</h2>
+                    <p>Responsive support for healthcare providers.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section contact-cta">
+    <div class="container contact-cta__inner">
+        <div>
+            <h2>Work with us</h2>
+            <p>Browse our catalogue or send a quotation request to our sales team.</p>
+        </div>
+        <a href="{% url 'create_inquiry' %}" class="button button--light">Request a Quote</a>
+    </div>
+</section>
+
+{% endblock %}

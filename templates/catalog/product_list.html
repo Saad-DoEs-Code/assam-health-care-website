@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{% if selected_category_obj %}{{ selected_category_obj.name }} | {% endif %}Product Catalogue | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}{% if selected_category_obj.description %}{{ selected_category_obj.description|truncatewords:30 }}{% else %}Browse surgical disposables, medical devices, and dialysis products supplied by Assam Healthcare, Multan. Request a quotation online.{% endif %}{% endblock %}
+
+{% block meta_robots %}{% if search_query or page_obj.number > 1 %}<meta name="robots" content="noindex, follow">{% endif %}{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            {% if selected_category_obj %}
+                <a href="{% url 'product_list' %}">Products</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">{{ selected_category_obj.name }}</span>
+            {% else %}
+                <span aria-current="page">Products</span>
+            {% endif %}
+        </nav>
+
+        <div class="section-heading">
+            <span class="eyebrow">Product Catalogue</span>
+            <h1>{% if selected_category_obj %}{{ selected_category_obj.name }}{% else %}Our Products{% endif %}</h1>
+            <p>
+                {% if selected_category_obj.description %}
+                    {{ selected_category_obj.description }}
+                {% else %}
+                    Browse the products we supply and request a quotation
+                    for one or several products at once.
+                {% endif %}
+            </p>
+        </div>
+
+        <form method="get" action="{% url 'product_list' %}" class="catalog-filters" role="search">
+            <div>
+                <label for="search-query">Search products</label>
+                <input type="search" id="search-query" name="q" value="{{ search_query }}"
+                       maxlength="100" placeholder="Product, size, or manufacturer">
+            </div>
+
+            <div>
+                <label for="category-filter">Product category</label>
+                <select id="category-filter" name="category">
+                    <option value="">All categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if selected_company %}
+                <input type="hidden" name="company" value="{{ selected_company.slug }}">
+            {% endif %}
+
+            <button type="submit" class="button button--primary">
+                Search
+            </button>
+
+            {% if is_filtered %}
+                <a href="{% url 'product_list' %}" class="button button--secondary">
+                    Clear filters
+                </a>
+            {% endif %}
+        </form>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <p class="catalog-count" role="status">
+            {{ page_obj.paginator.count }} product{{ page_obj.paginator.count|pluralize }}
+            {% if search_query %} matching &ldquo;{{ search_query }}&rdquo;{% endif %}
+            {% if selected_company %} from {{ selected_company.name }}{% endif %}
+        </p>
+
+        {% if page_obj.object_list %}
+            <div class="card-grid">
+                {% for product in page_obj %}
+                    {% include "catalog/partials/product_card.html" %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                {% if is_filtered %}
+                    <h2>No matching products</h2>
+                    <p>
+                        Try a different search term or category. If you cannot find
+                        what you need, describe it in a quotation request and our team
+                        will help.
+                    </p>
+                    <div class="empty-state__actions">
+                        <a href="{% url 'product_list' %}" class="button button--secondary">View all products</a>
+                        <a href="{% url 'create_inquiry' %}" class="button button--primary">Request a Quote</a>
+                    </div>
+                {% else %}
+                    <h2>Catalogue coming soon</h2>
+                    <p>
+                        Our online catalogue is being prepared. Please contact our team
+                        for product information and quotations.
+                    </p>
+                    <div class="empty-state__actions">
+                        <a href="{% url 'contact' %}" class="button button--primary">Contact Us</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        {% if page_obj.has_other_pages %}
+            <nav class="pagination" aria-label="Product pages">
+                {% if page_obj.has_previous %}
+                    <a class="button button--secondary button--small" rel="prev"
+                       href="?{% if filter_querystring %}{{ filter_querystring }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">
+                        &larr; Previous
+                    </a>
+                {% endif %}
+
+                <span class="pagination__current" aria-current="page">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a class="button button--secondary button--small" rel="next"
+                       href="?{% if filter_querystring %}{{ filter_querystring }}&amp;{% endif %}page={{ page_obj.next_page_number }}">
+                        Next &rarr;
+                    </a>
+                {% endif %}
+            </nav>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

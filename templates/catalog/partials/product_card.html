@@ -1,0 +1,44 @@
+{% comment %}
+Product card used on the catalogue, homepage and related-products list.
+Expects `product` with `category`, `company` and prefetched `images`.
+`heading_tag` defaults to h3.
+{% endcomment %}
+{% with image=product.primary_image %}
+<article class="card product-card">
+    <a href="{{ product.get_absolute_url }}" class="product-card__media" tabindex="-1" aria-hidden="true">
+        {% if image %}
+            <img src="{{ image.image.url }}" alt="" class="card__image" loading="lazy" width="400" height="300">
+        {% else %}
+            <span class="card__image card__image--placeholder">
+                <svg viewBox="0 0 48 48" width="48" height="48" aria-hidden="true" focusable="false">
+                    <rect x="6" y="6" width="36" height="36" rx="8" fill="none" stroke="currentColor" stroke-width="2.5"/>
+                    <path d="M20 14h8v6h6v8h-6v6h-8v-6h-6v-8h6z" fill="currentColor"/>
+                </svg>
+            </span>
+        {% endif %}
+    </a>
+
+    <span class="eyebrow">{{ product.category.name }}</span>
+
+    <h3 class="product-card__heading">
+        <a href="{{ product.get_absolute_url }}" class="product-card__title">{{ product.name }}</a>
+    </h3>
+
+    <p class="product-card__supplier">{{ product.company.name }}</p>
+
+    {% if product.short_description %}
+        <p class="product-card__summary">{{ product.short_description }}</p>
+    {% elif product.description %}
+        <p class="product-card__summary">{{ product.description|truncatewords:25 }}</p>
+    {% endif %}
+
+    <div class="product-card__actions">
+        <a href="{{ product.get_absolute_url }}" class="button button--secondary button--small">
+            View details<span class="visually-hidden"> for {{ product.name }}</span>
+        </a>
+        <a href="{% url 'create_inquiry' %}?product={{ product.pk }}" class="button button--primary button--small">
+            Request a Quote<span class="visually-hidden"> for {{ product.name }}</span>
+        </a>
+    </div>
+</article>
+{% endwith %}

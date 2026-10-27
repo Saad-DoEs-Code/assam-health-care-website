@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Application Received | {{ company_contact.name }}{% endblock %}
+
+{% block meta_robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted">
+    <div class="container">
+        <div class="inquiry-success">
+            <div class="inquiry-success__icon" aria-hidden="true">&#10003;</div>
+            <span class="eyebrow">Careers</span>
+            <h1>Thank You for Applying</h1>
+            <p>
+                Your application has been received. We will contact
+                shortlisted applicants using the details you provided.
+            </p>
+            <div class="inquiry-success__actions">
+                <a href="{% url 'job_list' %}" class="button button--primary">View Other Vacancies</a>
+                <a href="{% url 'home' %}" class="button button--secondary">Return Home</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

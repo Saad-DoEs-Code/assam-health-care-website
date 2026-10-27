@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load site_tags %}
+
+{% block title %}Sales Team &amp; Coverage | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}Meet the {{ company_contact.name }} sales team and see the territories we cover across Punjab.{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Sales Team</span>
+        </nav>
+        <div class="section-heading">
+            <span class="eyebrow">Sales Coverage</span>
+            <h1>Our Sales Team</h1>
+            <p>
+                Our representatives work with hospitals and healthcare
+                providers in each territory.
+            </p>
+        </div>
+    </div>
+</section>
+
+{% if territories %}
+<section class="section" aria-labelledby="territories-heading">
+    <div class="container">
+        <h2 id="territories-heading">Territories</h2>
+        {% include "team/partials/territory_list.html" %}
+    </div>
+</section>
+{% endif %}
+
+<section class="section section--muted" aria-labelledby="people-heading">
+    <div class="container">
+        <h2 id="people-heading">Team members</h2>
+
+        {% if employees %}
+            <div class="team-grid">
+                {% for employee in employees %}
+                    <article class="card employee-card" id="employee-{{ employee.pk }}">
+                        {% if employee.photo %}
+                            <img src="{{ employee.photo.url }}" alt="Photo of {{ employee.name }}" class="employee-card__photo" loading="lazy" width="96" height="96">
+                        {% else %}
+                            <span class="employee-card__photo employee-card__photo--placeholder" aria-hidden="true">{{ employee.name|slice:":1" }}</span>
+                        {% endif %}
+
+                        <h3>{{ employee.name }}</h3>
+                        <p class="employee-card__designation">{{ employee.designation }}</p>
+
+                        {% if employee.active_territories %}
+                            <p class="employee-card__territories">
+                                {% for territory in employee.active_territories %}{{ territory.name }}{% if not forloop.last %} &middot; {% endif %}{% endfor %}
+                            </p>
+                        {% endif %}
+
+                        {% if employee.bio %}
+                            <p>{{ employee.bio|linebreaksbr }}</p>
+                        {% endif %}
+
+                        <ul class="employee-card__contact">
+                            {% if employee.phone %}
+                                <li><a href="{{ employee.phone|tel_href }}">Call {{ employee.phone }}</a></li>
+                            {% endif %}
+                            {% if employee.email %}
+                                <li><a href="mailto:{{ employee.email }}">{{ employee.email }}</a></li>
+                            {% endif %}
+                        </ul>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>
+                    Please contact our office on
+                    <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>
+                    and we will put you in touch with your area representative.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<section class="section contact-cta">
+    <div class="container contact-cta__inner">
+        <div>
+            <h2>Need a quotation?</h2>
+            <p>Send your product list online and the right representative will follow up.</p>
+        </div>
+        <a href="{% url 'create_inquiry' %}" class="button button--light">Request a Quote</a>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} | {{ product.company.name }} | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}{% if product.short_description %}{{ product.short_description }}{% elif product.description %}{{ product.description|truncatewords:30 }}{% else %}{{ product.name }} by {{ product.company.name }}, available from Assam Healthcare, Multan. Request a quotation online.{% endif %}{% endblock %}
+
+{% block og_type %}product{% endblock %}
+{% block og_image %}{% if primary_image %}{{ request.scheme }}://{{ request.get_host }}{{ primary_image.image.url }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted section--compact">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            <a href="{% url 'product_list' %}">Products</a>
+            <span aria-hidden="true">/</span>
+            <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{{ product.name }}</span>
+        </nav>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="product-detail">
+
+            <div class="product-detail__gallery">
+                {% if primary_image %}
+                    <img
+                        class="product-detail__main-image"
+                        src="{{ primary_image.image.url }}"
+                        alt="{{ primary_image.alt_text|default:product.name }}"
+                        width="600"
+                        height="600"
+                    >
+                {% else %}
+                    <div class="product-detail__image-placeholder">
+                        Product image not yet available
+                    </div>
+                {% endif %}
+
+                {% if gallery_images %}
+                    <ul class="product-detail__thumbnails" aria-label="More images of {{ product.name }}">
+                        {% for product_image in gallery_images %}
+                            <li>
+                                <a href="{{ product_image.image.url }}" target="_blank" rel="noopener">
+                                    <img
+                                        class="product-detail__thumbnail"
+                                        src="{{ product_image.image.url }}"
+                                        alt="{{ product_image.alt_text|default:product.name }} (opens full size in a new tab)"
+                                        loading="lazy"
+                                        width="84"
+                                        height="84"
+                                    >
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="product-detail__information">
+                <a href="{{ product.category.get_absolute_url }}" class="eyebrow">{{ product.category.name }}</a>
+
+                <h1>{{ product.name }}</h1>
+
+                <dl class="product-detail__facts">
+                    <div>
+                        <dt>Manufacturer / Supplier</dt>
+                        <dd>
+                            {{ product.company.name }}
+                            {% if product.company.is_official_partner %}
+                                <span class="badge">Official distribution partner</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt>Category</dt>
+                        <dd><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></dd>
+                    </div>
+                    {% if variants %}
+                        <div>
+                            <dt>Available sizes / variants</dt>
+                            <dd>{% for variant in variants %}{{ variant.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+                        </div>
+                    {% endif %}
+                </dl>
+
+                {% if product.short_description %}
+                    <p class="product-detail__summary">
+                        {{ product.short_description }}
+                    </p>
+                {% endif %}
+
+                <div class="product-detail__actions">
+                    <a href="{% url 'create_inquiry' %}?product={{ product.pk }}" class="button button--primary">
+                        Request a Quote
+                    </a>
+                    <a href="{{ company_contact.phone_href }}" class="button button--secondary">
+                        Call {{ company_contact.phone }}
+                    </a>
+                </div>
+                <p class="product-detail__note">
+                    You can add more products to the same quotation request.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if product.description %}
+<section class="section section--muted">
+    <div class="container">
+        <div class="prose">
+            <h2>Product description</h2>
+            {{ product.description|linebreaks }}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if variants %}
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Product Options</span>
+            <h2>Available Variants</h2>
+            <p>Contact our team to confirm availability and specifications.</p>
+        </div>
+
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Variant</th>
+                        <th scope="col">Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for variant in variants %}
+                        <tr>
+                            <th scope="row">{{ variant.name }}</th>
+                            <td>{{ variant.description|default:"—" }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{% if product_documents %}
+<section class="section {% if variants %}section--muted{% endif %}">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Downloads</span>
+            <h2>Product Documents</h2>
+        </div>
+
+        <ul class="document-list">
+            {% for document in product_documents %}
+                <li class="document-list__item">
+                    <a href="{{ document.file.url }}" target="_blank" rel="noopener noreferrer">
+                        {{ document.title }}
+                        <span class="visually-hidden">(opens in a new tab)</span>
+                    </a>
+                    {% if document.description %}
+                        <p>{{ document.description }}</p>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</section>
+{% endif %}
+
+{% if related_products %}
+<section class="section section--muted">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">{{ product.category.name }}</span>
+            <h2>Related Products</h2>
+        </div>
+        <div class="card-grid">
+            {% for product in related_products %}
+                {% include "catalog/partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="container">
+        <a href="{% url 'product_list' %}" class="button button--secondary">
+            &larr; Back to Product Catalogue
+        </a>
+    </div>
+</section>
+
+{% endblock %}

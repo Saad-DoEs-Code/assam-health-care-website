@@ -1,0 +1,32 @@
+<article class="card company-card">
+    <div class="company-card__logo">
+        {% if company.logo %}
+            <img src="{{ company.logo.url }}" alt="{{ company.name }} logo" loading="lazy">
+        {% else %}
+            <span class="company-card__initial" aria-hidden="true">{{ company.name|slice:":1" }}</span>
+        {% endif %}
+    </div>
+
+    <h3>{{ company.name }}</h3>
+
+    {% if company.is_official_partner %}
+        <span class="badge">Official distribution partner</span>
+    {% endif %}
+
+    {% if company.description %}
+        <p>{{ company.description|linebreaksbr }}</p>
+    {% endif %}
+
+    <div class="company-card__links">
+        {% if company.product_count %}
+            <a href="{% url 'product_list' %}?company={{ company.slug }}">
+                View {{ company.product_count }} product{{ company.product_count|pluralize }}<span class="visually-hidden"> from {{ company.name }}</span>
+            </a>
+        {% endif %}
+        {% if company.website %}
+            <a href="{{ company.website }}" target="_blank" rel="noopener noreferrer">
+                Website<span class="visually-hidden"> of {{ company.name }} (opens in a new tab)</span>
+            </a>
+        {% endif %}
+    </div>
+</article>

@@ -1,0 +1,43 @@
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer__grid">
+            <div class="footer__brand">
+                <strong>{{ company_contact.name }}</strong>
+                <p>{{ company_contact.tagline }}</p>
+                <p class="footer__muted">
+                    Distributor of medical consumables, surgical disposables,
+                    medical devices, and dialysis products.
+                </p>
+            </div>
+
+            <nav aria-label="Footer">
+                <h2 class="footer__heading">Explore</h2>
+                <ul class="footer__links">
+                    <li><a href="{% url 'product_list' %}">Products</a></li>
+                    <li><a href="{% url 'partners' %}">Partners</a></li>
+                    <li><a href="{% url 'team' %}">Sales Team</a></li>
+                    <li><a href="{% url 'job_list' %}">Careers</a></li>
+                    <li><a href="{% url 'create_inquiry' %}">Request a Quote</a></li>
+                </ul>
+            </nav>
+
+            <address class="footer__contact">
+                <h2 class="footer__heading">Contact</h2>
+                <p>{{ company_contact.address|linebreaksbr }}</p>
+                <p>Phone: <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a></p>
+                {% if company_contact.email %}
+                    <p>Email: <a href="mailto:{{ company_contact.email }}">{{ company_contact.email }}</a></p>
+                {% endif %}
+                {% if company_contact.whatsapp_href %}
+                    <p>WhatsApp: <a href="{{ company_contact.whatsapp_href }}" rel="noopener" target="_blank">{{ company_contact.whatsapp }}</a></p>
+                {% endif %}
+            </address>
+        </div>
+
+        <hr>
+
+        <p class="footer__copyright">
+            &copy; {% now "Y" %} {{ company_contact.name }} All rights reserved.
+        </p>
+    </div>
+</footer>

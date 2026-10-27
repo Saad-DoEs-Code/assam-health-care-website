@@ -1,0 +1,86 @@
+{% comment %}
+One requested product row in the quotation form.
+
+Rows for a known product show its name with quantity, variant and notes.
+Other rows (the no-JavaScript fallback) show full product and variant lists.
+Rows are removed by deleting them from the page (JavaScript) or by ticking
+"Remove" (no JavaScript).
+{% endcomment %}
+{% with product=item_form.selected_product %}
+<div class="quote-item{% if item_form.errors %} quote-item--error{% endif %}"
+     data-item-row
+     {% if product %}data-product-id="{{ product.pk }}"{% endif %}
+     {% if not product and not item_form.errors %}data-blank-row{% endif %}>
+
+    <div class="quote-item__header">
+        {% if product %}
+            <div>
+                <h3 class="quote-item__name">{{ product.name }}</h3>
+                <p class="quote-item__meta">{{ product.company.name }} &middot; {{ product.category.name }}</p>
+            </div>
+        {% else %}
+            <h3 class="quote-item__name">Product {{ forloop.counter }}</h3>
+        {% endif %}
+
+        <label class="quote-item__remove-check" data-no-js-remove>
+            {{ item_form.DELETE }}
+            Remove
+        </label>
+    </div>
+
+    {% if item_form.non_field_errors %}
+        <div class="field-errors" role="alert">
+            {% for error in item_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="quote-item__fields">
+        {% if product %}
+            <input type="hidden" name="{{ item_form.product.html_name }}" value="{{ product.pk }}">
+        {% else %}
+            <div class="form-field form-field--full">
+                <label for="{{ item_form.product.id_for_label }}">Product</label>
+                {{ item_form.product }}
+            </div>
+        {% endif %}
+
+        {% if item_form.product.errors %}
+            <div class="field-errors form-field--full" role="alert">
+                {% for error in item_form.product.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+        {% endif %}
+
+        {% if not product or item_form.has_variants %}
+            <div class="form-field">
+                <label for="{{ item_form.variant.id_for_label }}">{{ item_form.variant.label }}</label>
+                {{ item_form.variant }}
+                {% if item_form.variant.errors %}
+                    <div class="field-errors" role="alert">
+                        {% for error in item_form.variant.errors %}<p>{{ error }}</p>{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="form-field">
+            <label for="{{ item_form.quantity.id_for_label }}">Quantity <span aria-hidden="true">*</span></label>
+            {{ item_form.quantity }}
+            {% if item_form.quantity.errors %}
+                <div class="field-errors" role="alert">
+                    {% for error in item_form.quantity.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="form-field form-field--full">
+            <label for="{{ item_form.notes.id_for_label }}">{{ item_form.notes.label }}</label>
+            {{ item_form.notes }}
+            {% if item_form.notes.errors %}
+                <div class="field-errors" role="alert">
+                    {% for error in item_form.notes.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endwith %}

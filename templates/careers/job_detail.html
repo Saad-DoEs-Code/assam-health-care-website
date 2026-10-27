@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} | Careers | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}{{ job.title }}{% if job.location %} in {{ job.location }}{% endif %} at {{ company_contact.name }} {{ job.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <nav aria-label="Breadcrumb" class="breadcrumbs">
+            <a href="{% url 'home' %}">Home</a>
+            <span aria-hidden="true">/</span>
+            <a href="{% url 'job_list' %}">Careers</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{{ job.title }}</span>
+        </nav>
+        <div class="section-heading">
+            <span class="eyebrow">{{ job.department|default:"Vacancy" }}</span>
+            <h1>{{ job.title }}</h1>
+            <p class="job-card__meta">
+                {% if job.location %}<span>{{ job.location }}</span>{% endif %}
+                {% if job.employment_type %}<span>{{ job.employment_type }}</span>{% endif %}
+                {% if job.application_deadline %}<span>Apply by {{ job.application_deadline|date:"j F Y" }}</span>{% endif %}
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container job-layout">
+        <div class="prose">
+            <h2>About the role</h2>
+            {{ job.description|linebreaks }}
+
+            {% if job.responsibilities %}
+                <h2>Responsibilities</h2>
+                {{ job.responsibilities|linebreaks }}
+            {% endif %}
+
+            {% if job.requirements %}
+                <h2>Requirements</h2>
+                {{ job.requirements|linebreaks }}
+            {% endif %}
+        </div>
+
+        <div class="inquiry-form-panel" id="apply">
+            <h2>Apply for this position</h2>
+            <p class="form-hint">
+                Complete the form below and attach your CV. We will contact
+                shortlisted applicants by phone or email.
+            </p>
+
+            <form method="post" action="{{ job.get_absolute_url }}#apply" enctype="multipart/form-data" class="application-form">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                    <div class="form-alert" role="alert">
+                        <strong>Please correct the highlighted fields below.</strong>
+                        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="inquiry-fields">
+                    {% for field in form.visible_fields %}
+                        {% if field.name != "website" %}
+                            <div class="form-field {% if field.name == 'cover_letter' or field.name == 'resume' %}form-field--full{% endif %}">
+                                <label for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span aria-hidden="true">*</span>
+                                    {% else %}
+                                        <span class="form-field__optional">(optional)</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small>{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="field-errors" role="alert">
+                                        {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="form-trap" aria-hidden="true">
+                    <label for="{{ form.website.id_for_label }}">{{ form.website.label }}</label>
+                    {{ form.website }}
+                </div>
+
+                <p class="form-required-note">
+                    Fields marked with <span aria-hidden="true">*</span> are required.
+                    Your details are used only to assess your application.
+                </p>
+
+                <button type="submit" class="button button--primary">Submit Application</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

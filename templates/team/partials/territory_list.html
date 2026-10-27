@@ -1,0 +1,21 @@
+{% comment %}
+Territory cards. Expects `territories` with `active_cities` prefetched.
+{% endcomment %}
+<ul class="territory-grid">
+    {% for territory in territories %}
+        <li class="territory-card" id="territory-{{ territory.slug }}">
+            <h3>{{ territory.name }}</h3>
+            {% if territory.active_cities %}
+                <p>
+                    {% for city in territory.active_cities %}{{ city.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                </p>
+            {% endif %}
+            {% if territory.public_employees %}
+                <p class="territory-card__team">
+                    Contact:
+                    {% for employee in territory.public_employees %}<a href="#employee-{{ employee.pk }}">{{ employee.name }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}
+                </p>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

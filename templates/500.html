@@ -1,0 +1,32 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex">
+    <title>Something went wrong | Assam Healthcare (Pvt.) Ltd.</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    {% comment %}
+    Kept standalone on purpose: the 500 handler renders without context
+    processors or database access, so this page must not depend on them.
+    {% endcomment %}
+    <main class="section section--muted">
+        <div class="container">
+            <div class="inquiry-success">
+                <span class="eyebrow">Error 500</span>
+                <h1>Something went wrong</h1>
+                <p>
+                    We could not complete your request. Please try again in a
+                    few minutes, or call us on
+                    <a href="tel:+923009631291">0300-9631291</a>.
+                </p>
+                <div class="inquiry-success__actions">
+                    <a href="/" class="button button--primary">Return Home</a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

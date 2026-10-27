@@ -1,0 +1,51 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}{{ company_contact.name }} | {{ company_contact.tagline }}{% endblock %}</title>
+
+    <meta name="description" content="{% filter striptags %}{% block meta_description %}Assam Healthcare (Pvt.) Ltd., Multan, distributes surgical disposables, medical devices, and dialysis products to hospitals and healthcare providers.{% endblock %}{% endfilter %}">
+    {% block meta_robots %}{% endblock %}
+
+    <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% block canonical_path %}{{ request.path }}{% endblock %}">
+
+    <meta property="og:site_name" content="{{ company_contact.name }}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ company_contact.name }}{% endblock %}">
+    <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{{ request.path }}">
+    <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/AHC_Logo.jpeg' %}{% endblock %}">
+
+    <meta name="theme-color" content="#153e75">
+
+    {% if site_settings and site_settings.favicon %}
+        <link rel="icon" href="{{ site_settings.favicon.url }}">
+    {% elif site_settings and site_settings.logo %}
+        <link rel="icon" href="{{ site_settings.logo.url }}">
+    {% else %}
+        <link rel="icon" href="{% static 'images/AHC_Logo.jpeg' %}">
+    {% endif %}
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    {% include "partials/navbar.html" %}
+
+    <main id="main-content" tabindex="-1">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    {% include "partials/footer.html" %}
+
+    <script src="{% static 'js/main.js' %}" defer></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

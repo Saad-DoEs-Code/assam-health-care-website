@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Request a Quote | {{ company_contact.name }}{% endblock %}
+
+{% block meta_description %}Request a quotation from Assam Healthcare for surgical disposables, medical devices, and dialysis products. Select several products in one request.{% endblock %}
+
+{% block content %}
+
+<section class="section section--muted page-header">
+    <div class="container">
+        <div class="section-heading">
+            <span class="eyebrow">Quotation Request</span>
+            <h1>Request a Quote</h1>
+            <p>
+                Add the products you need, tell us the quantities, and share
+                your contact details. Our team will follow up with a quotation.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="inquiry-layout">
+
+            <div class="inquiry-form-panel">
+                <form method="post" action="{% url 'create_inquiry' %}" class="inquiry-form" data-inquiry-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="submission_token" value="{{ submission_token }}">
+
+                    {% if form.errors or item_formset.non_form_errors or item_formset.total_error_count %}
+                        <div class="form-alert" role="alert" tabindex="-1" data-error-summary>
+                            <strong>Please correct the highlighted fields below.</strong>
+                            {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                            {% for error in item_formset.non_form_errors %}<p>{{ error }}</p>{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Step 1: products -->
+                    <fieldset class="form-section">
+                        <legend class="form-section__title">
+                            <span class="form-section__step" aria-hidden="true">1</span>
+                            Products
+                        </legend>
+
+                        {% if catalogue_data %}
+                            <div class="product-picker" data-product-picker hidden>
+                                <div class="product-picker__filters">
+                                    <div class="form-field">
+                                        <label for="picker-category">Category</label>
+                                        <select id="picker-category" data-picker-category>
+                                            <option value="">All categories</option>
+                                            {% for category in quote_categories %}
+                                                <option value="{{ category.slug }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-field">
+                                        <label for="picker-search">Search products</label>
+                                        <input type="search" id="picker-search" data-picker-search
+                                               placeholder="Product or manufacturer name" autocomplete="off">
+                                    </div>
+                                </div>
+
+                                <ul class="product-picker__results" data-picker-results aria-label="Matching products"></ul>
+                                <p class="product-picker__status" data-picker-status role="status" aria-live="polite"></p>
+                            </div>
+
+                            <noscript>
+                                <p class="form-hint">
+                                    Choose a product in each row below. Leave unused rows empty.
+                                    To add more rows, submit the form and contact our team, or call us.
+                                </p>
+                            </noscript>
+                        {% else %}
+                            <p class="form-hint">
+                                Our online catalogue is being updated. Please describe the
+                                products you need in the message field below, or call us.
+                            </p>
+                        {% endif %}
+
+                        <input type="hidden" name="{{ item_formset.prefix }}-TOTAL_FORMS" value="{{ item_formset.total_form_count }}" data-total-forms>
+                        <input type="hidden" name="{{ item_formset.prefix }}-INITIAL_FORMS" value="0">
+                        <input type="hidden" name="{{ item_formset.prefix }}-MIN_NUM_FORMS" value="0">
+                        <input type="hidden" name="{{ item_formset.prefix }}-MAX_NUM_FORMS" value="{{ max_items }}">
+
+                        <h3 class="selected-items__title" id="selected-items-title" data-selected-title hidden>
+                            Selected products (<span data-selected-count>0</span>)
+                        </h3>
+
+                        <div class="selected-items" data-item-list aria-labelledby="selected-items-title">
+                            {% for item_form in item_formset %}
+                                {% if not item_form.cleaned_data.DELETE %}
+                                    {% include "inquiries/partials/item_row.html" %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <p class="selected-items__empty" data-empty-message hidden>
+                            No products selected yet. Use the search above to add products,
+                            or describe your requirements in the message below.
+                        </p>
+                    </fieldset>
+
+                    <!-- Step 2: contact details -->
+                    <fieldset class="form-section">
+                        <legend class="form-section__title">
+                            <span class="form-section__step" aria-hidden="true">2</span>
+                            Your details
+                        </legend>
+
+                        {% if not has_cities %}
+                            <p class="form-hint" role="note">
+                                Online requests are temporarily unavailable while we update
+                                our service areas. Please call
+                                <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>.
+                            </p>
+                        {% endif %}
+
+                        <div class="inquiry-fields">
+                            {% for field in form.visible_fields %}
+                                {% if field.name != "website" %}
+                                    <div class="form-field {% if field.name == 'message' %}form-field--full{% endif %}">
+                                        <label for="{{ field.id_for_label }}">
+                                            {{ field.label }}
+                                            {% if field.field.required %}
+                                                <span aria-hidden="true">*</span>
+                                            {% else %}
+                                                <span class="form-field__optional">(optional)</span>
+                                            {% endif %}
+                                        </label>
+
+                                        {{ field }}
+
+                                        {% if field.errors %}
+                                            <div class="field-errors" role="alert" id="{{ field.id_for_label }}-errors">
+                                                {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="form-trap" aria-hidden="true">
+                            <label for="{{ form.website.id_for_label }}">{{ form.website.label }}</label>
+                            {{ form.website }}
+                        </div>
+                    </fieldset>
+
+                    <p class="form-required-note">
+                        Fields marked with <span aria-hidden="true">*</span> are required.
+                        We only use your details to respond to this request.
+                    </p>
+
+                    <button type="submit" class="button button--primary" data-submit-button>
+                        Submit Quotation Request
+                    </button>
+                </form>
+            </div>
+
+            <aside class="inquiry-contact-panel">
+                <h2>Need assistance?</h2>
+                <p>
+                    Call our team if you need help identifying a product
+                    or discussing your requirements.
+                </p>
+
+                <p>
+                    <strong>Phone</strong><br>
+                    <a href="{{ company_contact.phone_href }}">{{ company_contact.phone }}</a>
+                </p>
+
+                {% if company_contact.email %}
+                    <p>
+                        <strong>Email</strong><br>
+                        <a href="mailto:{{ company_contact.email }}">{{ company_contact.email }}</a>
+                    </p>
+                {% endif %}
+
+                <p>
+                    <strong>Office</strong><br>
+                    {{ company_contact.address|linebreaksbr }}
+                </p>
+
+                <p class="inquiry-contact-panel__note">
+                    Prices are not listed online. Quotations are prepared by
+                    our sales team for each request.
+                </p>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+{% if catalogue_data %}
+    <template data-item-template>
+        <div class="quote-item" data-item-row>
+            <div class="quote-item__header">
+                <div>
+                    <h3 class="quote-item__name" data-item-name></h3>
+                    <p class="quote-item__meta" data-item-meta></p>
+                </div>
+            </div>
+            <div class="quote-item__fields">
+                <input type="hidden" name="{{ item_formset.prefix }}-__prefix__-product" data-item-product>
+                <div class="form-field" data-item-variant-field>
+                    <label for="id_{{ item_formset.prefix }}-__prefix__-variant">Size / variant</label>
+                    <select name="{{ item_formset.prefix }}-__prefix__-variant" id="id_{{ item_formset.prefix }}-__prefix__-variant" data-item-variant>
+                        <option value="">Any / not sure</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label for="id_{{ item_formset.prefix }}-__prefix__-quantity">Quantity <span aria-hidden="true">*</span></label>
+                    <input type="number" name="{{ item_formset.prefix }}-__prefix__-quantity" id="id_{{ item_formset.prefix }}-__prefix__-quantity"
+                           value="1" min="1" max="1000000" inputmode="numeric" required>
+                </div>
+                <div class="form-field form-field--full">
+                    <label for="id_{{ item_formset.prefix }}-__prefix__-notes">Notes (optional)</label>
+                    <input type="text" name="{{ item_formset.prefix }}-__prefix__-notes" id="id_{{ item_formset.prefix }}-__prefix__-notes"
+                           maxlength="300" placeholder="e.g. packaging, brand preference">
+                </div>
+            </div>
+        </div>
+    </template>
+
+    {{ catalogue_data|json_script:"quote-catalogue" }}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/inquiry_form.js' %}" defer></script>
+{% endblock %}
