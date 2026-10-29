@@ -23,7 +23,13 @@
         <div class="mt-8 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div class="flex items-center gap-6">
                 {% if selected_category_obj %}
-                    <img src="{% category_art selected_category_obj %}" alt="" width="200" height="160" class="hidden w-36 shrink-0 rounded-2xl border border-line bg-white sm:block">
+                    {% category_photo selected_category_obj as header_photo %}
+                    {% if header_photo %}
+                        <img src="{{ header_photo.src_small }}" alt="" width="480" height="384"
+                             class="hidden aspect-[5/4] w-40 shrink-0 rounded-2xl border border-line object-cover sm:block">
+                    {% else %}
+                        <img src="{% category_art selected_category_obj %}" alt="" width="200" height="160" class="hidden w-36 shrink-0 rounded-2xl border border-line bg-white sm:block">
+                    {% endif %}
                 {% endif %}
                 <div class="max-w-2xl">
                     <p class="eyebrow">Product catalogue</p>

@@ -11,6 +11,7 @@ register = template.Library()
 
 CATEGORY_ART_DIR = "images/categories"
 DEFAULT_CATEGORY_ART = f"{CATEGORY_ART_DIR}/default.svg"
+CATEGORY_PHOTO_DIR = "images/photos/categories"
 
 
 @register.filter
@@ -41,3 +42,34 @@ def category_art(category):
         if candidate is not None and candidate.slug in available:
             return static(f"{CATEGORY_ART_DIR}/{candidate.slug}.svg")
     return static(DEFAULT_CATEGORY_ART)
+
+
+@lru_cache(maxsize=1)
+def _available_category_photos():
+    """Slugs that have a photo in static/images/photos/categories/."""
+    photo_dir = Path(settings.BASE_DIR) / "static" / CATEGORY_PHOTO_DIR
+    return {
+        path.stem
+        for path in photo_dir.glob("*.webp")
+        if not path.stem.endswith("-480")
+    }
+
+
+@register.simple_tag
+def category_photo(category):
+    """
+    Photo URLs for a category, or None when it has no photo.
+
+    Returns {"src": 800px version, "src_small": 480px version}. Looks for the
+    category's own slug, then its parent's. Templates fall back to the SVG
+    illustration ({% category_art %}) when this returns None.
+    """
+    available = _available_category_photos()
+    for candidate in (category, getattr(category, "parent", None)):
+        if candidate is not None and candidate.slug in available:
+            base = f"{CATEGORY_PHOTO_DIR}/{candidate.slug}"
+            return {
+                "src": static(f"{base}.webp"),
+                "src_small": static(f"{base}-480.webp"),
+            }
+    return None

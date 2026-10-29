@@ -1,16 +1,28 @@
 {% load site_tags %}
 {% comment %}
 Image-led category card. Expects `category` (with optional `product_count`)
-and `tone` ("mist" or "teal") to vary the artwork surface.
+and `tone` ("mist" or "teal"), which tints the surface behind the SVG
+illustration used when a category has no photo.
 The whole card is one link to the filtered catalogue.
 {% endcomment %}
+{% category_photo category as photo %}
 <a href="{{ category.get_absolute_url }}"
    class="group flex h-full flex-col overflow-hidden rounded-(--radius-card) border border-line bg-white no-underline shadow-(--shadow-card) transition duration-300 hover:-translate-y-1 hover:border-navy-200 hover:shadow-(--shadow-lift) focus-visible:-translate-y-1 motion-reduce:hover:translate-y-0">
-    <span class="relative flex aspect-[5/4] items-center justify-center overflow-hidden {% if tone == 'teal' %}bg-teal-50{% else %}bg-mist{% endif %}">
-        <span class="bg-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true"></span>
-        <img src="{% category_art category %}" alt="" width="200" height="160" loading="lazy"
-             class="relative w-[88%] transition duration-500 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100">
-    </span>
+    {% if photo %}
+        <span class="relative block aspect-[5/4] overflow-hidden bg-mist">
+            <img src="{{ photo.src }}" srcset="{{ photo.src_small }} 480w, {{ photo.src }} 800w"
+                 sizes="(min-width: 1024px) 20vw, 50vw"
+                 alt="" width="800" height="640" loading="lazy" decoding="async"
+                 class="size-full object-cover transition duration-500 group-hover:scale-[1.05] motion-reduce:group-hover:scale-100">
+            <span class="pointer-events-none absolute inset-0 bg-gradient-to-t from-navy-950/25 via-transparent to-transparent" aria-hidden="true"></span>
+        </span>
+    {% else %}
+        <span class="relative flex aspect-[5/4] items-center justify-center overflow-hidden {% if tone == 'teal' %}bg-teal-50{% else %}bg-mist{% endif %}">
+            <span class="bg-grid pointer-events-none absolute inset-0 opacity-60" aria-hidden="true"></span>
+            <img src="{% category_art category %}" alt="" width="200" height="160" loading="lazy"
+                 class="relative w-[88%] transition duration-500 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100">
+        </span>
+    {% endif %}
     <span class="flex flex-1 flex-col gap-2 p-4 sm:p-5">
         <span class="font-display text-base leading-snug font-semibold text-navy-900 sm:text-lg">{{ category.name }}</span>
         {% if category.description %}

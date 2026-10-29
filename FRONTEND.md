@@ -36,6 +36,7 @@ run side by side in two terminals.
 | `static/css/site.css` | **Generated** — do not edit by hand |
 | `static/fonts/` | Manrope and Source Serif 4 (SIL Open Font License) |
 | `static/images/categories/` | Category illustrations (see below) |
+| `static/images/photos/` | Hero and category photos, with sources and licences in `CREDITS.md` |
 | `static/js/main.js` | Mobile navigation |
 | `static/js/inquiry_form.js` | Quotation form product picker |
 | `templates/partials/` | Shared pieces: navbar, footer, breadcrumbs, page header, section heading, form field, quotation call to action |
@@ -80,3 +81,23 @@ Current illustrations: dialysis, urology, interventional-cardiology,
 anesthesia-respiratory-care, gastroenterology-hepatobiliary, neurosurgery,
 interventional-radiology-biopsy, general-surgery, diagnostics-equipment,
 hygiene-disinfection, and default.
+
+## Photos
+
+Category cards and the homepage hero use photographs from Pexels and
+Unsplash (free commercial licences; see `static/images/photos/CREDITS.md`).
+
+* `static/images/photos/categories/<category-slug>.webp` (800 × 640) and
+  `<category-slug>-480.webp` (480 × 384) — 5:4 crops. The
+  `{% category_photo category as photo %}` tag returns both URLs, falling back
+  to the parent category's photo; when a category has no photo the card shows
+  its SVG illustration instead.
+* `static/images/photos/hero.webp` (960 × 1200) and `hero-640.webp` — 4:5 crop.
+* Product cards and product pages **never** use these scene photos: a product
+  without its own photo shows its category illustration, so a stock photo is
+  not mistaken for the actual product.
+
+To add or replace a photo, use a licence that allows commercial use, avoid
+visible manufacturer branding and graphic clinical scenes, crop it to the
+same ratio, save both WebP sizes (quality about 78), add a row to
+`CREDITS.md`, and restart Django (the list of available photos is cached).

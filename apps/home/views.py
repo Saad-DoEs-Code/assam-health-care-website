@@ -29,7 +29,6 @@ def home(request):
             is_active=True,
         ),
         "categories": categories,
-        "hero_categories": categories[:3],
         "featured_products": (
             public_products.filter(is_featured=True)
             .select_related("category", "company")

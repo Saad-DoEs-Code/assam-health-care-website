@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load site_tags %}
+{% load static site_tags %}
 
 {% block title %}{{ company_contact.name }} | Medical &amp; Surgical Supplies, Multan{% endblock %}
 
@@ -56,36 +56,28 @@
             </dl>
         </div>
 
-        {# Composition of category artwork from the database. #}
-        {% if hero_categories %}
-            <div class="relative isolate" aria-hidden="true">
-                <div class="absolute -inset-4 -z-10 rotate-2 rounded-[2rem] border border-navy-100 bg-white/50 sm:-inset-6"></div>
-                <div class="grid grid-cols-2 gap-4 rounded-[1.75rem] border border-line bg-white p-4 shadow-(--shadow-lift) sm:gap-5 sm:p-5">
-                    {% for category in hero_categories %}
-                        <div class="relative flex flex-col overflow-hidden rounded-2xl {% cycle 'bg-navy-800' 'bg-teal-50' 'bg-mist' 'bg-canvas' %} {% if forloop.first %}row-span-2 justify-between{% endif %}">
-                            {% if forloop.first %}
-                                <div class="p-5 sm:p-6">
-                                    <p class="text-[0.7rem] font-bold tracking-[0.16em] text-teal-200 uppercase">Product range</p>
-                                    <p class="mt-2 font-display text-xl leading-snug font-semibold text-white sm:text-2xl">{{ category.name }}</p>
-                                </div>
-                                <div class="mx-4 mb-4 rounded-xl bg-white/95 p-2">
-                                    <img src="{% category_art category %}" alt="" width="200" height="160" class="w-full">
-                                </div>
-                            {% else %}
-                                <img src="{% category_art category %}" alt="" width="200" height="160" class="mx-auto w-[82%] pt-3">
-                                <p class="px-4 pb-4 text-sm leading-snug font-semibold text-navy-900">{{ category.name }}</p>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <div class="col-span-2 flex items-center gap-3 rounded-2xl border border-line px-4 py-3">
-                        <span class="flex size-9 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white">
-                            <svg class="size-4" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 10.5l4 4 8-9"/></svg>
-                        </span>
-                        <p class="text-sm leading-snug font-semibold text-navy-900">One quotation request for many products</p>
-                    </div>
-                </div>
+        {# Hero photo: see static/images/photos/CREDITS.md. #}
+        <div class="relative isolate mx-auto w-full max-w-md lg:max-w-none">
+            <div class="absolute -inset-4 -z-10 rotate-2 rounded-[2rem] border border-navy-100 bg-white/60 sm:-inset-6" aria-hidden="true"></div>
+            <div class="overflow-hidden rounded-[1.75rem] border border-line bg-mist shadow-(--shadow-lift)">
+                <img src="{% static 'images/photos/hero.webp' %}"
+                     srcset="{% static 'images/photos/hero-640.webp' %} 640w, {% static 'images/photos/hero.webp' %} 960w"
+                     sizes="(min-width: 1024px) 40vw, (min-width: 640px) 28rem, 100vw"
+                     alt="Healthcare worker taking supplies from a hospital supply room shelf"
+                     width="960" height="1200" fetchpriority="high" decoding="async"
+                     class="aspect-[4/3] w-full object-cover sm:aspect-[4/5]">
             </div>
-        {% endif %}
+
+            <div class="absolute right-4 -bottom-6 left-4 flex items-center gap-3 rounded-2xl border border-line bg-white/95 p-4 shadow-(--shadow-lift) backdrop-blur sm:right-auto sm:-left-6 sm:max-w-xs">
+                <span class="flex size-10 shrink-0 items-center justify-center rounded-full bg-teal-600 text-white" aria-hidden="true">
+                    <svg class="size-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 10.5l4 4 8-9"/></svg>
+                </span>
+                <p class="text-sm leading-snug font-semibold text-navy-900">
+                    One quotation request for many products
+                    <span class="block font-normal text-muted">Hospitals, clinics &amp; procurement teams</span>
+                </p>
+            </div>
+        </div>
     </div>
 </section>
 

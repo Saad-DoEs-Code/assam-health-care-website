@@ -236,3 +236,69 @@ class LeadershipMessageTests(TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse("admin:content_leadershipmessage_changelist"))
         self.assertContains(response, "Test Leader")
+
+
+class CategoryPhotoTests(TestCase):
+    CATEGORY_SLUGS = [
+        "dialysis",
+        "urology",
+        "interventional-cardiology",
+        "anesthesia-respiratory-care",
+        "gastroenterology-hepatobiliary",
+        "neurosurgery",
+        "interventional-radiology-biopsy",
+        "general-surgery",
+        "diagnostics-equipment",
+        "hygiene-disinfection",
+    ]
+
+    def test_photo_files_exist_in_both_sizes(self):
+        from pathlib import Path
+
+        from django.conf import settings
+
+        photo_dir = Path(settings.BASE_DIR) / "static" / "images" / "photos"
+        expected = ["hero.webp", "hero-640.webp", "CREDITS.md"]
+        for slug in self.CATEGORY_SLUGS:
+            expected += [f"categories/{slug}.webp", f"categories/{slug}-480.webp"]
+        for name in expected:
+            with self.subTest(file=name):
+                self.assertTrue((photo_dir / name).exists())
+
+    def test_lookup_uses_own_then_parent_then_none(self):
+        from apps.catalog.models import Category
+        from apps.content.templatetags.site_tags import category_photo
+
+        dialysis = Category(name="Dialysis", slug="dialysis")
+        child = Category(name="Dialysis Needles", slug="dialysis-needles", parent=dialysis)
+        unknown = Category(name="New Range", slug="new-range")
+
+        photo = category_photo(dialysis)
+        self.assertTrue(photo["src"].endswith("/images/photos/categories/dialysis.webp"))
+        self.assertTrue(photo["src_small"].endswith("/images/photos/categories/dialysis-480.webp"))
+        self.assertEqual(category_photo(child), photo)
+        self.assertIsNone(category_photo(unknown))
+
+    def test_cards_use_photo_or_fall_back_to_illustration(self):
+        from apps.core.testing import make_category
+
+        make_category("Dialysis")
+        make_category("New Range")
+        response = self.client.get(reverse("home"))
+
+        self.assertContains(response, "/static/images/photos/categories/dialysis.webp")
+        self.assertContains(response, "/static/images/categories/default.svg")
+
+    def test_homepage_hero_photo(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(response, "/static/images/photos/hero.webp")
+        self.assertContains(response, 'alt="Healthcare worker taking supplies from a hospital supply room shelf"')
+
+    def test_products_without_photos_keep_the_illustration(self):
+        # A scene photo must never stand in for a product photo.
+        from apps.core.testing import make_category, make_company, make_product
+
+        product = make_product("Hollow Fiber Dialyzer", make_category("Dialysis"), make_company("Bain Medical"))
+        response = self.client.get(product.get_absolute_url())
+        self.assertContains(response, "/static/images/categories/dialysis.svg")
+        self.assertNotContains(response, "/static/images/photos/categories/dialysis.webp")
