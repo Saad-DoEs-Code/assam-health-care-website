@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import LeadershipMessage, Page, SiteSettings
+from .models import AssistantAnswer, LeadershipMessage, Page, SiteSettings
 
 
 @admin.register(Page)
@@ -118,3 +118,39 @@ class LeadershipMessageAdmin(admin.ModelAdmin):
                 obj.photo.url,
             )
         return "—"
+
+
+@admin.register(AssistantAnswer)
+class AssistantAnswerAdmin(admin.ModelAdmin):
+    # Common questions offered by the help assistant on every page. The
+    # assistant also has built-in options (product search, quote, contact).
+    list_display = (
+        "question",
+        "display_order",
+        "is_published",
+        "updated_at",
+    )
+
+    list_editable = ("display_order", "is_published")
+
+    list_filter = ("is_published",)
+
+    search_fields = ("question", "answer")
+
+    fieldsets = (
+        (None, {"fields": ("question", "answer")}),
+        (
+            "Button under the answer (optional)",
+            {"fields": ("link_label", "link_url")},
+        ),
+        (
+            "Visibility",
+            {
+                "description": (
+                    "Questions are listed in display order. The assistant "
+                    "never shows prices; keep answers free of them."
+                ),
+                "fields": ("display_order", "is_published"),
+            },
+        ),
+    )

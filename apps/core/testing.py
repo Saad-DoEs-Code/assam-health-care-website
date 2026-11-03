@@ -2,6 +2,9 @@
 Small helpers for creating test data. Used by the test modules of each app.
 """
 
+from django.test.runner import DiscoverRunner
+from django.test.utils import override_settings
+
 from apps.catalog.models import Category, Product, ProductVariant
 from apps.companies.models import Company
 from apps.team.models import City, Territory
@@ -37,3 +40,30 @@ def make_city(name="Multan", territory_name="Multan & Central Punjab", **kwargs)
         defaults={"name": territory_name},
     )
     return City.objects.create(name=name, territory=territory, **kwargs)
+
+
+class TestRunner(DiscoverRunner):
+    """
+    Runs the tests without a cache, so rate-limit counts from one test never
+    affect another (rate-limit tests switch a real cache back on themselves),
+    with a fast password hasher, so sign-in tests do not slow the suite, and
+    with plain static URLs (no development ?v= suffix).
+    """
+
+    def setup_test_environment(self, **kwargs):
+        super().setup_test_environment(**kwargs)
+        self._no_cache = override_settings(
+            CACHES={"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}},
+            PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"],
+            STORAGES={
+                "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+                "staticfiles": {
+                    "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+                },
+            },
+        )
+        self._no_cache.enable()
+
+    def teardown_test_environment(self, **kwargs):
+        self._no_cache.disable()
+        super().teardown_test_environment(**kwargs)

@@ -152,3 +152,70 @@ class LeadershipMessage(models.Model):
     def get_published(cls):
         """The most recently updated published message, or None."""
         return cls.objects.filter(is_published=True).first()
+
+
+def validate_assistant_link(url):
+    """Links must stay on this site ("/products/") or use HTTPS."""
+    if url and not (
+        (url.startswith("/") and not url.startswith("//"))
+        or url.startswith("https://")
+    ):
+        raise ValidationError(
+            'Enter a page on this site starting with "/" (for example '
+            '/products/) or a full address starting with https://.'
+        )
+
+
+class AssistantAnswer(models.Model):
+    """
+    A ready-made answer in the website's help assistant (the chat button in
+    the corner of every page). Visitors pick a question; nothing is typed
+    freely, so the assistant only ever says what staff have written here.
+    """
+
+    question = models.CharField(
+        max_length=120,
+        help_text="Shown as a button, for example: Do you deliver outside Multan?",
+    )
+
+    answer = models.TextField(
+        help_text=(
+            "Plain text. Separate paragraphs with a blank line. Do not "
+            "include prices: price questions should go to the quote form."
+        ),
+    )
+
+    link_label = models.CharField(
+        max_length=60,
+        blank=True,
+        help_text="Optional button under the answer, for example: See our cities.",
+    )
+
+    link_url = models.CharField(
+        max_length=300,
+        blank=True,
+        validators=[validate_assistant_link],
+        help_text="Page for that button, for example /team/ or /products/.",
+    )
+
+    display_order = models.PositiveIntegerField(default=0)
+
+    is_published = models.BooleanField(
+        default=True,
+        help_text="Only published answers appear in the assistant.",
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["display_order", "question"]
+
+    def __str__(self):
+        return self.question
+
+    def clean(self):
+        super().clean()
+        if bool(self.link_label) != bool(self.link_url):
+            raise ValidationError(
+                "Fill in both the button label and its page, or leave both empty."
+            )

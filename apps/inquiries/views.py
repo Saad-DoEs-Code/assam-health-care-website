@@ -2,8 +2,10 @@ import uuid
 
 from django.db import transaction
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
 
 from apps.catalog.models import Category
+from apps.core import ratelimit
 from apps.inquiries.forms import (
     MAX_INQUIRY_ITEMS,
     InquiryForm,
@@ -18,6 +20,12 @@ ITEM_FORMSET_PREFIX = "items"
 # Session keys
 SUBMITTED_TOKENS_KEY = "inquiry_submitted_tokens"
 LAST_INQUIRY_KEY = "last_inquiry_id"
+
+RATE_LIMIT_MESSAGE = (
+    "We have received several requests from your connection in a short "
+    "time. Please try again in an hour, or call us and our sales team will "
+    "help you directly."
+)
 
 
 def _get_preselected_product(request, catalogue):
@@ -55,6 +63,7 @@ def _catalogue_for_script(catalogue):
     ]
 
 
+@require_http_methods(["GET", "POST"])
 def create_inquiry(request):
     catalogue = get_quote_catalogue()
     formset_kwargs = {
@@ -74,10 +83,18 @@ def create_inquiry(request):
         ):
             return redirect("inquiry_success")
 
-        if form.is_valid() and item_formset.is_valid():
+        rate_limited = ratelimit.is_limited(
+            "inquiry", request, ratelimit.INQUIRY_LIMIT
+        )
+
+        if rate_limited:
+            form.is_valid()
+            form.add_error(None, RATE_LIMIT_MESSAGE)
+        elif form.is_valid() and item_formset.is_valid():
             items = item_formset.selected_items()
 
             if form.is_spam():
+                ratelimit.count_attempt("inquiry", request, ratelimit.INQUIRY_LIMIT)
                 return redirect("inquiry_success")
 
             if items:
@@ -111,6 +128,7 @@ def create_inquiry(request):
                     # same confirmation page whatever the result.
                     screen_inquiry(inquiry)
 
+                ratelimit.count_attempt("inquiry", request, ratelimit.INQUIRY_LIMIT)
                 if submission_token:
                     tokens = request.session.get(SUBMITTED_TOKENS_KEY, [])
                     request.session[SUBMITTED_TOKENS_KEY] = (tokens + [submission_token])[-10:]
@@ -127,6 +145,7 @@ def create_inquiry(request):
         )
         item_formset = InquiryItemFormSet(initial=initial_items, **formset_kwargs)
         submission_token = ""
+        rate_limited = False
 
     context = {
         "form": form,
@@ -139,9 +158,15 @@ def create_inquiry(request):
         ).distinct(),
         "has_cities": form.fields["city"].queryset.exists(),
         "max_items": MAX_INQUIRY_ITEMS,
+        "rate_limited": rate_limited,
     }
 
-    return render(request, "inquiries/inquiry_form.html", context)
+    return render(
+        request,
+        "inquiries/inquiry_form.html",
+        context,
+        status=429 if rate_limited else 200,
+    )
 
 
 def inquiry_success(request):

@@ -1,12 +1,29 @@
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+from django.views.decorators.http import require_GET
 
 from apps.companies.models import Company
 
 from .models import Category, Product
 
 PRODUCTS_PER_PAGE = 12
+MAX_SEARCH_LENGTH = 100
+ASSISTANT_MIN_QUERY_LENGTH = 2
+ASSISTANT_MAX_RESULTS = 6
+
+
+def search_products(products, search_query):
+    """Filter products by name, description, company or active variant."""
+    return products.filter(
+        Q(name__icontains=search_query)
+        | Q(short_description__icontains=search_query)
+        | Q(description__icontains=search_query)
+        | Q(company__name__icontains=search_query)
+        | Q(variants__name__icontains=search_query, variants__is_active=True)
+    ).distinct()
 
 
 def product_list(request):
@@ -16,18 +33,12 @@ def product_list(request):
         .prefetch_related("images")
     )
 
-    search_query = request.GET.get("q", "").strip()[:100]
+    search_query = request.GET.get("q", "").strip()[:MAX_SEARCH_LENGTH]
     category_slug = request.GET.get("category", "").strip()
     company_slug = request.GET.get("company", "").strip()
 
     if search_query:
-        products = products.filter(
-            Q(name__icontains=search_query)
-            | Q(short_description__icontains=search_query)
-            | Q(description__icontains=search_query)
-            | Q(company__name__icontains=search_query)
-            | Q(variants__name__icontains=search_query, variants__is_active=True)
-        ).distinct()
+        products = search_products(products, search_query)
 
     selected_category = None
     if category_slug:
@@ -117,3 +128,36 @@ def product_detail(request, slug):
     }
 
     return render(request, "catalog/product_detail.html", context)
+
+
+@require_GET
+def assistant_product_search(request):
+    """
+    Product matches for the help assistant, as JSON.
+
+    Only public names and links are returned; never prices or stock.
+    """
+    search_query = request.GET.get("q", "").strip()[:MAX_SEARCH_LENGTH]
+    results = []
+
+    if len(search_query) >= ASSISTANT_MIN_QUERY_LENGTH:
+        products = search_products(
+            Product.objects.public().select_related("category", "company"),
+            search_query,
+        ).order_by("-is_featured", "display_order", "name")[:ASSISTANT_MAX_RESULTS]
+
+        quote_url = reverse("create_inquiry")
+        results = [
+            {
+                "name": product.name,
+                "company": product.company.name,
+                "category": product.category.name,
+                "url": product.get_absolute_url(),
+                "quote_url": f"{quote_url}?product={product.pk}",
+            }
+            for product in products
+        ]
+
+    response = JsonResponse({"query": search_query, "results": results})
+    response["X-Robots-Tag"] = "noindex"
+    return response

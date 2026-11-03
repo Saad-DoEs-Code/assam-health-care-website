@@ -1,4 +1,4 @@
-import re
+import unicodedata
 
 from django.db import DatabaseError
 
@@ -20,7 +20,10 @@ def phone_to_international(phone):
     "0300-9631291" and "+92 300 9631291" both become "+923009631291".
     Returns an empty string when the value contains no digits.
     """
-    digits = re.sub(r"\D", "", phone or "")
+    # isdecimal() also accepts Urdu/Arabic digits, converted to 0-9 here.
+    digits = "".join(
+        str(unicodedata.decimal(char)) for char in phone or "" if char.isdecimal()
+    )
     if not digits:
         return ""
     if digits.startswith("0092"):

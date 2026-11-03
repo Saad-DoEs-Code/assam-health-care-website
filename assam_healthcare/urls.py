@@ -13,6 +13,8 @@ from django.http import HttpResponse
 from django.urls import path, include, reverse
 from django.views.decorators.http import require_GET
 
+from apps.core.views import admin_login
+
 from .sitemaps import sitemaps
 
 
@@ -20,8 +22,10 @@ from .sitemaps import sitemaps
 def robots_txt(request):
     lines = [
         "User-agent: *",
-        "Disallow: /admin/",
+        # The admin address is left out on purpose: listing it here would
+        # tell bots where to try passwords. Admin pages are noindex anyway.
         "Disallow: /inquiry/success/",
+        "Disallow: /assistant/",
         "Disallow: /careers/application-received/",
         f"Sitemap: {request.build_absolute_uri(reverse('sitemap'))}",
     ]
@@ -33,7 +37,9 @@ admin.site.site_title = "Assam Healthcare admin"
 admin.site.index_title = "Website management"
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Must come before admin.site.urls so it replaces the stock login view.
+    path(f"{settings.ADMIN_URL}login/", admin_login, name="admin_login"),
+    path(settings.ADMIN_URL, admin.site.urls),
     path("robots.txt", robots_txt, name="robots_txt"),
     path(
         "sitemap.xml",

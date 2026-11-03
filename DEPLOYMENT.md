@@ -104,7 +104,9 @@ when filled in.
 
 ## Production configuration
 
-Settings are read from environment variables (see `.env.example`). Required:
+Settings are read from environment variables. For the Hostinger VPS, all of
+them are in `deploy/assam_healthcare.env.example` (installed as
+`/etc/assam_healthcare.env`). Required:
 
 | Variable | Purpose |
 | --- | --- |
@@ -117,8 +119,28 @@ Optional: `DJANGO_DB_PATH`, `DJANGO_STATIC_ROOT`, `DJANGO_MEDIA_ROOT`,
 `DJANGO_BEHIND_PROXY` (set when a proxy terminates TLS),
 `DJANGO_SECURE_SSL_REDIRECT`, `DJANGO_SECURE_COOKIES`,
 `DJANGO_SECURE_HSTS_SECONDS` (raise once HTTPS is confirmed working),
-`DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS`, `DJANGO_LOG_LEVEL`, and the
-`DJANGO_EMAIL_*` variables.
+`DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS`, `DJANGO_LOG_LEVEL`, the
+`DJANGO_EMAIL_*` variables, `DJANGO_ADMINS` (comma-separated addresses that
+receive error reports), `DJANGO_ADMIN_URL` (admin address, default `admin/`;
+use a private word in production) and `DJANGO_CACHE_DIR` (shared file cache
+for the rate limits; without it each gunicorn worker counts separately).
+
+## Protection against abuse
+
+* **Rate limits in Django** (`apps/core/ratelimit.py`), per IP address:
+  10 quotation requests and 5 job applications an hour (further attempts get
+  a polite "too many requests" message, status 429, and nothing is saved),
+  and admin sign-in pauses for 15 minutes after 10 wrong passwords.
+* **Rate limits in nginx** (`deploy/nginx.conf`): 10 page requests a second
+  (burst 40) and 10 form submissions a minute per IP; requests for unknown
+  host names, hidden files and `.php`-style scanner URLs never reach Django.
+* **Content-Security-Policy** (`SECURE_CSP` in settings): only this site's own
+  scripts run. Keep JavaScript in `static/js/` — inline `<script>` blocks are
+  blocked by the browser.
+* Uploaded media is served with a sandboxing CSP, so an uploaded HTML/SVG file
+  cannot run scripts on the site.
+* Phone numbers typed with Urdu/Arabic digits are converted to 0-9 before they
+  are saved, so the competitor screening always matches them.
 
 Generate a secret key:
 
@@ -126,39 +148,43 @@ Generate a secret key:
 python -c "import secrets; print(secrets.token_urlsafe(50))"
 ```
 
-### Deployment steps
+### Hosting: Hostinger VPS
 
-```powershell
-pip install -r requirements.txt
-npm install            # only if you rebuild CSS on the server
-npm run build          # only if you rebuild CSS on the server
-python manage.py migrate
-python manage.py collectstatic --noinput
-python manage.py check --deploy
+The live site runs on a **Hostinger VPS** (Ubuntu 24.04, Python 3.12) at
+**https://assamhealthcare.pk**. Hostinger's shared Web/Cloud hosting cannot run
+Django. Step-by-step instructions (server setup, DNS, HTTPS, Google Workspace
+email, backups) are in [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md).
+
+| File in `deploy/` | Installed as | Purpose |
+| --- | --- | --- |
+| `assam_healthcare.env.example` | `/etc/assam_healthcare.env` (root:assam, 640) | Production settings and secrets |
+| `gunicorn.service` | `/etc/systemd/system/assam_healthcare.service` | Runs Django with gunicorn on a Unix socket |
+| `nginx.conf` | `/etc/nginx/sites-available/assam_healthcare` | HTTPS, `www` → bare-domain redirect, static/media files, blocks `/media/careers/` |
+| `update.sh` | run as `assam` | Backup → `git pull` → install → migrate → collectstatic → `check --deploy` → restart |
+| `backup.sh` | daily cron as `assam` | Consistent SQLite copy + `media/` archive in `~/backups`, kept 14 days |
+
+Deploy an update after pushing to GitHub:
+
+```bash
+bash ~/assam_healthcare/deploy/update.sh
 ```
 
-Then serve the project with a production WSGI server (for example gunicorn on
-Linux or waitress on Windows — neither is installed yet) behind a web server
-that:
+The compiled CSS is committed, so Node.js is not needed on the server.
+`runserver` is a development server and must never be used in production.
 
-* serves `STATIC_ROOT` at `/static/`;
-* serves `MEDIA_ROOT` at `/media/` **except** `/media/careers/` (CVs) and, ideally,
-  `/media/catalog/products/documents/` files that are not public. Django only
-  serves media itself when `DEBUG=True`.
-
-`runserver` is a development server and must not be used in production.
-
-`check --deploy` will still warn about `SECURE_HSTS_INCLUDE_SUBDOMAINS` and
-`SECURE_HSTS_PRELOAD`; enable these only once the domain and all subdomains
-are confirmed to be HTTPS-only.
+`check --deploy` warns about HSTS until `DJANGO_SECURE_HSTS_SECONDS` is set
+(do this after HTTPS has worked for about a week). Enable
+`SECURE_HSTS_INCLUDE_SUBDOMAINS` only if every subdomain uses HTTPS.
 
 ## Known limitations
 
-* No email notification for new inquiries or job applications; staff check
-  Django Admin. (Email delivery is not configured.)
-* Private product documents and CVs are hidden from pages, but anyone with the
-  exact file URL can download them while `/media/` is served publicly. See the
-  web-server note above.
-* No rate limiting beyond the honeypot and duplicate-submission token.
+* No email notification for new inquiries or job applications yet; staff check
+  Django Admin. Email delivery (Google Workspace SMTP) is used for error reports.
+* nginx never serves CVs (`/media/careers/`), so the CV link in admin does not
+  open on the live site until a staff-only download view is added.
+* Private product documents are hidden from pages, but anyone with the exact
+  file URL can open them; upload only public documents for now.
+* Rate limits are per IP address. Visitors sharing one mobile-network address
+  share the limits, which are set high enough for normal use.
 * Categories have no image field (it was removed in migration `catalog.0006`).
 * The inquiry form requires a city from the active city list.

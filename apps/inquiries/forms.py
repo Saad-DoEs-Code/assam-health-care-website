@@ -1,7 +1,11 @@
 import re
+import unicodedata
 
 from django import forms
 from django.db.models import Prefetch
+from django.forms.utils import flatatt
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 from apps.catalog.models import Product, ProductVariant
 from apps.inquiries.models import Inquiry
@@ -14,11 +18,27 @@ MAX_ITEM_QUANTITY = 1_000_000
 # The JavaScript product picker removes them and adds rows on demand instead.
 FALLBACK_BLANK_ROWS = 3
 
-PHONE_PATTERN = re.compile(r"^\+?[\d\s\-()]+$")
+PHONE_PATTERN = re.compile(r"^\+?[\d\s\-()]+$", re.ASCII)
+
+
+def to_ascii_digits(value):
+    """
+    Replace Urdu/Arabic digits (۰۳۰۰...) with 0-9.
+
+    Visitors typing on an Urdu keyboard get a working number, and the same
+    number always looks the same to the competitor screening, however it
+    was typed.
+    """
+    return "".join(
+        str(unicodedata.decimal(char)) if char.isdecimal() else char
+        for char in value
+    )
 
 
 def validate_phone_number(value):
-    digits = re.sub(r"\D", "", value)
+    """Return the phone number with ASCII digits, or raise ValidationError."""
+    value = to_ascii_digits(value)
+    digits = re.sub(r"\D", "", value, flags=re.ASCII)
     if not PHONE_PATTERN.match(value) or not 10 <= len(digits) <= 15:
         raise forms.ValidationError(
             "Enter a valid phone number, for example 0300-1234567."
@@ -51,6 +71,44 @@ def get_quote_catalogue():
             "name",
         )
     )
+
+
+class QuickSelect(forms.Select):
+    """
+    A <select> rendered directly in Python.
+
+    Django renders each <option> through a template, which is slow for the
+    quotation form: its fallback rows list every product and every variant,
+    thousands of options once the catalogue grows. The HTML is the same.
+    Choices must be a plain list (optionally grouped), as InquiryItemForm
+    sets them.
+    """
+
+    def render(self, name, value, attrs=None, renderer=None):
+        selected = {str(item) for item in self.format_value(value)}
+
+        def option(option_value, option_label):
+            option_value = "" if option_value is None else str(option_value)
+            return '<option value="{}"{}>{}</option>'.format(
+                escape(option_value),
+                " selected" if option_value in selected else "",
+                escape(option_label),
+            )
+
+        parts = []
+        for option_value, option_label in self.choices:
+            if isinstance(option_label, (list, tuple)):
+                parts.append('<optgroup label="{}">'.format(escape(option_value)))
+                parts.extend(option(*choice) for choice in option_label)
+                parts.append("</optgroup>")
+            else:
+                parts.append(option(option_value, option_label))
+
+        final_attrs = {"name": name, **self.build_attrs(self.attrs, attrs)}
+        # Every value above is escaped, so the result is safe HTML.
+        return mark_safe(
+            "<select{}>{}</select>".format(flatatt(final_attrs), "".join(parts))
+        )
 
 
 class HoneypotMixin(forms.Form):
@@ -178,7 +236,7 @@ class InquiryForm(HoneypotMixin, forms.ModelForm):
     def clean_whatsapp(self):
         whatsapp = self.cleaned_data.get("whatsapp", "").strip()
         if whatsapp:
-            validate_phone_number(whatsapp)
+            whatsapp = validate_phone_number(whatsapp)
         return whatsapp
 
     def clean_message(self):
@@ -198,6 +256,7 @@ class InquiryItemForm(forms.Form):
 
     product = forms.ModelChoiceField(
         queryset=Product.objects.public(),
+        widget=QuickSelect,
         error_messages={
             "invalid_choice": (
                 "This product is not available. Please remove it and "
@@ -210,6 +269,7 @@ class InquiryItemForm(forms.Form):
         queryset=ProductVariant.objects.filter(is_active=True),
         required=False,
         label="Size / variant",
+        widget=QuickSelect,
         error_messages={
             "invalid_choice": "Select one of the available variants.",
         },

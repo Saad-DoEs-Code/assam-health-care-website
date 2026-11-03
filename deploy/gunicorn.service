@@ -1,0 +1,29 @@
+# systemd service that runs the Django site with gunicorn.
+# Install:
+#   sudo cp deploy/gunicorn.service /etc/systemd/system/assam_healthcare.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now assam_healthcare
+# Logs:
+#   sudo journalctl -u assam_healthcare -f
+
+[Unit]
+Description=Assam Healthcare website (gunicorn)
+After=network.target
+
+[Service]
+User=assam
+Group=www-data
+WorkingDirectory=/home/assam/assam_healthcare
+EnvironmentFile=/etc/assam_healthcare.env
+RuntimeDirectory=assam_healthcare
+ExecStart=/home/assam/venv/bin/gunicorn assam_healthcare.wsgi:application \
+    --bind unix:/run/assam_healthcare/gunicorn.sock \
+    --umask 007 \
+    --workers 3 \
+    --timeout 60 \
+    --access-logfile - \
+    --error-logfile -
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

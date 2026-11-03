@@ -1,4 +1,4 @@
-{% load static %}<!DOCTYPE html>
+{% load static site_tags %}<!DOCTYPE html>
 <html lang="en" class="scroll-pt-24">
 <head>
     <meta charset="UTF-8">
@@ -45,6 +45,11 @@
     </main>
 
     {% include "partials/footer.html" %}
+
+    {% block assistant %}
+        {% help_assistant %}
+        <script src="{% static 'js/assistant.js' %}" defer></script>
+    {% endblock %}
 
     <script src="{% static 'js/main.js' %}" defer></script>
     {% block extra_js %}{% endblock %}

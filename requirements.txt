@@ -1,3 +1,4 @@
 # Runtime dependencies for the Assam Healthcare website.
 Django==6.1
 Pillow==10.3.0  # Required by ImageField (product images, logos, staff photos)
+gunicorn==26.2.0  # Production web server on the Linux VPS (not used by runserver)

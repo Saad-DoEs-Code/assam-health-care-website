@@ -46,7 +46,7 @@
 
                 {% if form.errors %}
                     <div class="rounded-xl border border-danger-200 bg-danger-50 p-4 text-sm text-danger-700" role="alert">
-                        <p class="font-semibold">Please correct the highlighted fields below.</p>
+                        {% if rate_limited %}<p class="font-semibold">Too many requests</p>{% else %}<p class="font-semibold">Please correct the highlighted fields below.</p>{% endif %}
                         {% for error in form.non_field_errors %}<p class="mt-1">{{ error }}</p>{% endfor %}
                     </div>
                 {% endif %}

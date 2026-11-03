@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sign-in Paused | {{ company_contact.name }}{% endblock %}
+
+{% block meta_robots %}<meta name="robots" content="noindex">{% endblock %}
+
+{% block content %}
+<section class="relative overflow-hidden bg-canvas py-16 lg:py-24">
+    <div class="relative mx-auto max-w-2xl px-4 text-center sm:px-6">
+        {% include "partials/confirmation.html" with eyebrow="Too many attempts" title="Sign-in is paused" message="There have been several wrong passwords from your connection. Please wait 15 minutes and try again." %}
+        <div class="mt-8 flex justify-center">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Return Home</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

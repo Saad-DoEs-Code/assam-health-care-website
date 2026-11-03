@@ -1,11 +1,14 @@
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import quote
 
 from django import template
 from django.conf import settings
+from django.db import DatabaseError
 from django.templatetags.static import static
 
 from apps.content.context_processors import phone_to_international
+from apps.content.models import AssistantAnswer
 
 register = template.Library()
 
@@ -73,3 +76,29 @@ def category_photo(category):
                 "src_small": static(f"{base}-480.webp"),
             }
     return None
+
+
+ASSISTANT_WHATSAPP_GREETING = (
+    "Hello Assam Healthcare, I have a question about your products."
+)
+
+
+@register.inclusion_tag("partials/assistant.html", takes_context=True)
+def help_assistant(context):
+    """The help assistant (chat button) with the published answers."""
+    company_contact = context.get("company_contact", {})
+    whatsapp_href = company_contact.get("whatsapp_href", "")
+    try:
+        answers = list(AssistantAnswer.objects.filter(is_published=True))
+    except DatabaseError:
+        answers = []
+    return {
+        "company_contact": company_contact,
+        "answers": answers,
+        "whatsapp_href": whatsapp_href,
+        "whatsapp_greeting_href": (
+            f"{whatsapp_href}?text={quote(ASSISTANT_WHATSAPP_GREETING)}"
+            if whatsapp_href
+            else ""
+        ),
+    }

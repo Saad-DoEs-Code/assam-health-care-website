@@ -102,7 +102,8 @@ class SiteWideTests(TestCase):
     def test_robots_txt(self):
         response = self.client.get("/robots.txt")
         self.assertEqual(response["Content-Type"], "text/plain")
-        self.assertContains(response, "Disallow: /admin/")
+        # Naming the admin address would point bots at the login page.
+        self.assertNotContains(response, "admin")
         self.assertContains(response, "Sitemap: http://testserver/sitemap.xml")
 
     def test_pages_have_title_description_and_canonical(self):

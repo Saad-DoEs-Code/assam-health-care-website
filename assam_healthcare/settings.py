@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.csp import CSP
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -54,6 +55,10 @@ ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS")
 
 CSRF_TRUSTED_ORIGINS = env_list("DJANGO_CSRF_TRUSTED_ORIGINS")
 
+# Address of the admin site. Production should use a hard-to-guess value
+# (e.g. "manage-7f3k2/") so bots scanning for /admin/ never find the login.
+ADMIN_URL = os.environ.get("DJANGO_ADMIN_URL", "admin/").strip("/") + "/"
+
 
 # Application definition
 
@@ -85,6 +90,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.csp.ContentSecurityPolicyMiddleware",
 ]
 
 ROOT_URLCONF = "assam_healthcare.urls"
@@ -107,6 +113,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "assam_healthcare.wsgi.application"
+
+TEST_RUNNER = "apps.core.testing.TestRunner"
 
 
 # Database
@@ -163,15 +171,19 @@ STATICFILES_DIRS = [
 # `python manage.py collectstatic` copies everything here for production.
 STATIC_ROOT = Path(os.environ.get("DJANGO_STATIC_ROOT") or BASE_DIR / "staticfiles")
 
-if not DEBUG:
-    # Adds a content hash to static file names (style.abc123.css) so browsers
-    # pick up CSS/JS changes after each deploy. Requires collectstatic.
-    STORAGES = {
-        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-        },
-    }
+# Browsers must never keep an old copy of site.css or the scripts after a
+# change. Production adds a content hash to file names (site.abc123.css,
+# requires collectstatic); development adds ?v=<last modified time>.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": (
+            "apps.core.storage.VersionedStaticFilesStorage"
+            if DEBUG
+            else "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
+        )
+    },
+}
 
 # Media Files Management
 MEDIA_URL = "/media/"
@@ -180,6 +192,20 @@ MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT") or BASE_DIR / "media")
 # Uploads larger than this are streamed to a temporary file instead of memory.
 # Per-field size limits are enforced in the forms (see apps/careers/forms.py).
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2.5 * 1024 * 1024
+
+
+# Cache
+# Holds the rate-limit counters for public forms and admin sign-in
+# (apps/core/ratelimit.py). Production uses a file cache so all gunicorn
+# workers share the same counts; development keeps them in memory.
+
+if os.environ.get("DJANGO_CACHE_DIR"):
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+            "LOCATION": os.environ["DJANGO_CACHE_DIR"],
+        }
+    }
 
 
 # Email
@@ -211,6 +237,10 @@ else:
 DEFAULT_FROM_EMAIL = os.environ.get("DJANGO_DEFAULT_FROM_EMAIL", "webmaster@localhost")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
+# Who receives an email when the live site hits an error (needs email
+# delivery configured above). Comma-separated, e.g. "it@assamhealthcare.pk".
+ADMINS = env_list("DJANGO_ADMINS")
+
 
 # Security
 # These are enabled automatically when DEBUG is False. HTTPS-only settings
@@ -220,6 +250,24 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+
+# Content Security Policy: the browser only runs scripts, styles, fonts and
+# images served by this site, so injected markup cannot load or run code
+# from elsewhere. Templates must not use inline <script> (the product data
+# uses json_script, which is not executed). Inline style attributes are
+# allowed because the Django admin and its list badges rely on them.
+SECURE_CSP = {
+    "default-src": [CSP.SELF],
+    "script-src": [CSP.SELF],
+    "style-src": [CSP.SELF, CSP.UNSAFE_INLINE],
+    "img-src": [CSP.SELF, "data:"],
+    "font-src": [CSP.SELF],
+    "connect-src": [CSP.SELF],
+    "object-src": [CSP.NONE],
+    "base-uri": [CSP.SELF],
+    "form-action": [CSP.SELF],
+    "frame-ancestors": [CSP.NONE],
+}
 
 if not DEBUG:
     SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", default=True)
