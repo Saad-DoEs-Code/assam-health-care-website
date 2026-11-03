@@ -11,6 +11,7 @@ from apps.inquiries.forms import (
     get_quote_catalogue,
 )
 from apps.inquiries.models import Inquiry, InquiryItem
+from apps.inquiries.screening import screen_inquiry
 
 ITEM_FORMSET_PREFIX = "items"
 
@@ -79,13 +80,19 @@ def create_inquiry(request):
             if form.is_spam():
                 return redirect("inquiry_success")
 
+            if items:
+                # Quotations are only prepared for identified organisations.
+                for field_name in ("organization", "designation"):
+                    if not form.cleaned_data.get(field_name):
+                        form.add_error(field_name, "This field is required when requesting a quotation.")
+
             if not items and not form.cleaned_data.get("message"):
                 form.add_error(
                     None,
                     "Please add at least one product, or describe your "
                     "requirements in the message field.",
                 )
-            else:
+            elif not form.errors:
                 with transaction.atomic():
                     inquiry = form.save()
                     InquiryItem.objects.bulk_create(
@@ -100,6 +107,9 @@ def create_inquiry(request):
                             for item in items
                         ]
                     )
+                    # Risk flags for the sales team. The requester sees the
+                    # same confirmation page whatever the result.
+                    screen_inquiry(inquiry)
 
                 if submission_token:
                     tokens = request.session.get(SUBMITTED_TOKENS_KEY, [])

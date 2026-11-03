@@ -7,6 +7,8 @@ Variables: field (a bound field), full (span both columns).
         {{ field.label }}
         {% if field.field.required %}
             <span class="text-danger-700" aria-hidden="true">*</span>
+        {% elif field.field.required_for_quotation %}
+            <span class="font-normal text-muted">(required for quotations)</span>
         {% else %}
             <span class="font-normal text-muted">(optional)</span>
         {% endif %}

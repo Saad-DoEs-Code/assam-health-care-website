@@ -70,6 +70,28 @@ Tests live in each app's `tests.py`; shared test-data helpers are in
   hundreds of products; if the catalogue grows to thousands, replace it with a
   small search endpoint.
 
+### Quotation screening (competitor protection)
+
+Every quotation request is checked automatically (`apps/inquiries/screening.py`)
+and given a **risk level** with reasons, shown in Django Admin → Inquiries:
+
+* **High:** matches the **Watchlist** (phone, email, email domain, organisation
+  name or keyword), or uses the phone/email of an inquiry already marked as a
+  competitor.
+* **Points** (2+ = medium, 4+ = high): distributor / trader (2), same phone or
+  email used before under a different name or organisation (2), broad request —
+  10+ products or 4+ categories (2), 3+ requests from one contact in 30 days
+  (1), free email address (1).
+* **Returning customers** (an earlier inquiry from the same phone/email was
+  converted) are marked and kept low risk unless on the watchlist.
+
+Staff workflow: verify the requester (call back, letterhead), tick **Is
+verified** and add a note — an inquiry cannot be marked *Quoted* or *Converted*
+until verified. The action **Mark as suspected competitor** closes the inquiry
+and adds its phone, WhatsApp, email and organisation to the watchlist. **Re-run
+risk check** re-screens selected inquiries (e.g. older ones, or after editing
+the watchlist). Requesters always see the same confirmation page.
+
 ## Content managed in Django Admin
 
 Companies (partner flag, logo), categories, products (variants, images with a

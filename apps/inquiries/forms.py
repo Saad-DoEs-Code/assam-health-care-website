@@ -76,6 +76,7 @@ class InquiryForm(HoneypotMixin, forms.ModelForm):
         model = Inquiry
         fields = [
             "name",
+            "organization_type",
             "organization",
             "designation",
             "phone",
@@ -87,6 +88,7 @@ class InquiryForm(HoneypotMixin, forms.ModelForm):
 
         labels = {
             "name": "Full name",
+            "organization_type": "Type of organisation",
             "organization": "Hospital / organization",
             "whatsapp": "WhatsApp number",
             "message": "Message or additional requirements",
@@ -154,8 +156,17 @@ class InquiryForm(HoneypotMixin, forms.ModelForm):
 
         self.fields["city"].empty_label = "Select your city"
 
+        self.fields["organization_type"].required = True
+        self.fields["organization_type"].choices = [
+            ("", "Select type")
+        ] + Inquiry.ORGANIZATION_TYPE_CHOICES
+
+        # Required only when products are requested (checked in the view),
+        # so a general message can still be sent with fewer details.
         self.fields["organization"].required = False
         self.fields["designation"].required = False
+        self.fields["organization"].required_for_quotation = True
+        self.fields["designation"].required_for_quotation = True
         self.fields["whatsapp"].required = False
         self.fields["email"].required = False
 

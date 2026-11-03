@@ -31,6 +31,7 @@ class InquiryTestBase(TestCase):
     def contact_data(self, **overrides):
         data = {
             "name": "Dr. Ayesha Khan",
+            "organization_type": "hospital",
             "organization": "Nishtar Hospital",
             "designation": "Procurement Officer",
             "phone": "0300-1234567",

@@ -42,7 +42,8 @@
                 <div class="mt-6 grid gap-5 sm:grid-cols-2">
                     {% include "partials/form_field.html" with field=form.name %}
                     {% include "partials/form_field.html" with field=form.designation %}
-                    {% include "partials/form_field.html" with field=form.organization full=True %}
+                    {% include "partials/form_field.html" with field=form.organization_type %}
+                    {% include "partials/form_field.html" with field=form.organization %}
                     {% include "partials/form_field.html" with field=form.phone %}
                     {% include "partials/form_field.html" with field=form.whatsapp %}
                     {% include "partials/form_field.html" with field=form.email %}
