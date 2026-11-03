@@ -48,8 +48,10 @@
     </div>
 
     <div class="border-t border-white/10">
-        <p class="mx-auto max-w-(--container-page) px-4 py-6 text-xs text-navy-300 sm:px-6 lg:px-8">
-            &copy; {% now "Y" %} {{ company_contact.name }} All rights reserved.
-        </p>
+        {# Bottom padding keeps this line clear of the floating help button. #}
+        <div class="mx-auto flex max-w-(--container-page) flex-col gap-2 px-4 pt-6 pb-24 text-xs text-navy-300 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+            <p>&copy; {% now "Y" %} {{ company_contact.name }} All rights reserved.</p>
+            <p>Developed by <a href="mailto:saad.does.code@gmail.com" class="font-semibold text-navy-200 underline-offset-2 hover:text-white hover:underline">saad.does.code@gmail.com</a></p>
+        </div>
     </div>
 </footer>

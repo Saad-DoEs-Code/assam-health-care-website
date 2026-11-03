@@ -87,7 +87,10 @@ class ContactPageTests(TestCase):
         self.assertContains(response, "Street #3, Al-Raheem Colony, Nishter Road, Multan, Pakistan.")
         self.assertContains(response, "0300-9631291")
         self.assertContains(response, "Quality. Trust. Service.")
-        self.assertNotContains(response, "mailto:")
+        # No company email is shown until one is entered in Site Settings;
+        # the footer's developer credit is the only email link.
+        self.assertContains(response, "mailto:", count=1)
+        self.assertContains(response, 'href="mailto:saad.does.code@gmail.com"')
 
 
 class StaticAssetTests(TestCase):

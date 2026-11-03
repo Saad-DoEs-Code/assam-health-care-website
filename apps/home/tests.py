@@ -99,6 +99,13 @@ class SiteWideTests(TestCase):
         self.assertNotContains(response, "/pages/draft/")
         self.assertNotContains(response, "/admin/")
 
+    def test_footer_credits_the_developer(self):
+        response = self.client.get(reverse("home"))
+        self.assertContains(
+            response, 'href="mailto:saad.does.code@gmail.com"'
+        )
+        self.assertContains(response, "Developed by")
+
     def test_robots_txt(self):
         response = self.client.get("/robots.txt")
         self.assertEqual(response["Content-Type"], "text/plain")
