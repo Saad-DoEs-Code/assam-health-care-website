@@ -218,6 +218,11 @@
   ~/venv/bin/python manage.py collectstatic --noinput
   ~/venv/bin/python manage.py createsuperuser     # strong password → password manager
   ```
+- [ ] Shrink photos uploaded before automatic resizing existed (the current CEO photo is 4.3 MB → about 185 KB; originals are kept in `media/originals/`):
+  ```bash
+  ~/venv/bin/python manage.py optimise_images          # shows what would change
+  ~/venv/bin/python manage.py optimise_images --apply
+  ```
 
 **Start the services**
 - [ ] Let nginx read static/media files and start the app:

@@ -13,7 +13,7 @@ Products without a photo show their category illustration instead.
                  class="size-full object-contain p-6 transition duration-500 group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
         {% else %}
             <img src="{% category_art product.category %}" alt="" width="200" height="160" loading="lazy" class="w-3/5 opacity-90">
-            <span class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[0.7rem] font-semibold text-muted">Photo not yet available</span>
+            <span class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-muted">Photo not yet available</span>
         {% endif %}
     </a>
 
@@ -27,7 +27,7 @@ Products without a photo show their category illustration instead.
         <p class="mt-2 flex flex-wrap items-center gap-2 text-sm font-semibold text-navy-700">
             {{ product.company.name }}
             {% if product.company.is_official_partner %}
-                <span class="rounded-full bg-teal-50 px-2 py-0.5 text-[0.7rem] font-bold text-teal-800">Official partner</span>
+                <span class="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-bold text-teal-800">Official partner</span>
             {% endif %}
         </p>
 

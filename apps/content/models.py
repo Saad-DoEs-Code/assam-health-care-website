@@ -3,6 +3,8 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.urls import reverse
 
+from apps.core.images import LOGO_SIZE, PORTRAIT_SIZE, optimise_upload
+
 MAX_LEADERSHIP_PHOTO_SIZE = 5 * 1024 * 1024  # 5 MB
 
 
@@ -92,6 +94,10 @@ class SiteSettings(models.Model):
     def __str__(self):
         return self.company_name
 
+    def save(self, *args, **kwargs):
+        optimise_upload(self.logo, LOGO_SIZE)
+        super().save(*args, **kwargs)
+
 
 class LeadershipMessage(models.Model):
     """
@@ -147,6 +153,10 @@ class LeadershipMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.designation}"
+
+    def save(self, *args, **kwargs):
+        optimise_upload(self.photo, PORTRAIT_SIZE)
+        super().save(*args, **kwargs)
 
     @classmethod
     def get_published(cls):

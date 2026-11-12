@@ -1,5 +1,7 @@
 from django.db import models
 
+from apps.core.images import LOGO_SIZE, optimise_upload
+
 
 # Create your models here.
 class Company(models.Model):
@@ -22,3 +24,7 @@ class Company(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    def save(self, *args, **kwargs):
+        optimise_upload(self.logo, LOGO_SIZE)
+        super().save(*args, **kwargs)

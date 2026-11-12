@@ -53,7 +53,7 @@
                 <label for="search-query" class="sr-only">Search products</label>
                 <svg class="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="9" cy="9" r="6"/><path d="m13.5 13.5 3.5 3.5"/></svg>
                 <input type="search" id="search-query" name="q" value="{{ search_query }}" maxlength="100"
-                       placeholder="Search by product, size, or manufacturer" class="form-control border-transparent bg-canvas pl-12">
+                       placeholder="Product, size or brand" class="form-control border-transparent bg-canvas pl-12">
             </div>
             <div class="sm:col-span-2 sm:row-start-2 lg:col-span-1 lg:row-start-auto">
                 <label for="category-filter" class="sr-only">Product category</label>
@@ -110,7 +110,7 @@
                     {% if selected_company %} from {{ selected_company.name }}{% endif %}
                 </p>
                 {% if is_filtered %}
-                    <a href="{% url 'product_list' %}" class="inline-flex items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-sm font-semibold no-underline hover:border-navy-300">
+                    <a href="{% url 'product_list' %}" class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line px-4 text-sm font-semibold no-underline hover:border-navy-300">
                         <svg class="size-3.5" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 5l10 10M15 5 5 15"/></svg>
                         Clear filters
                     </a>

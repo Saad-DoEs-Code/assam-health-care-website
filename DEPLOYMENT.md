@@ -125,6 +125,14 @@ receive error reports), `DJANGO_ADMIN_URL` (admin address, default `admin/`;
 use a private word in production) and `DJANGO_CACHE_DIR` (shared file cache
 for the rate limits; without it each gunicorn worker counts separately).
 
+## Uploaded photos
+
+New uploads (product photos, CEO and staff photos, logos) are turned upright
+and scaled down automatically (`apps/core/images.py`): product photos to
+1600px, portraits to 1200px, logos to 600px on the longest side. Photos
+uploaded earlier can be shrunk with `python manage.py optimise_images`
+(dry run) and `--apply` (backs up originals to `media/originals/`).
+
 ## Protection against abuse
 
 * **Rate limits in Django** (`apps/core/ratelimit.py`), per IP address:

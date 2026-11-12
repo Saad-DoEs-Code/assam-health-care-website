@@ -170,8 +170,9 @@
     @apply disabled:cursor-not-allowed disabled:opacity-60;
   }
 
+  /* 44px tall: comfortable to tap on a phone. */
   .btn-sm {
-    @apply min-h-10 px-4 text-sm;
+    @apply min-h-11 px-4 text-sm;
   }
 
   .btn-primary {
@@ -200,6 +201,11 @@
   }
 
   /* The arrow inside a link nudges right on hover. */
+  /* Text links with an arrow get a full-size touch target. */
+  .arrow-link {
+    @apply min-h-11 items-center;
+  }
+
   .arrow-link .arrow {
     @apply transition-transform duration-200;
   }
@@ -226,7 +232,8 @@
 
   .form-control,
   .form-field :is(input:not([type="checkbox"], [type="radio"], [type="hidden"], [type="file"]), select, textarea) {
-    @apply w-full min-h-12 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-[0.95rem] text-ink transition;
+    /* 16px on phones: iOS zooms into any field with smaller text. */
+    @apply w-full min-h-12 rounded-xl border border-line-strong bg-white px-4 py-2.5 text-base text-ink transition sm:text-[0.95rem];
     @apply placeholder:text-muted/70 hover:border-navy-300;
     @apply focus:border-teal-600 focus:ring-4 focus:ring-teal-600/15 focus:outline-none;
   }

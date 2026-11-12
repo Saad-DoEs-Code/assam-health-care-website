@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 
+from apps.core.images import PRODUCT_PHOTO_SIZE, optimise_upload
+
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -136,6 +138,10 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - Image"
+
+    def save(self, *args, **kwargs):
+        optimise_upload(self.image, PRODUCT_PHOTO_SIZE)
+        super().save(*args, **kwargs)
 
 
 class ProductDocument(models.Model):

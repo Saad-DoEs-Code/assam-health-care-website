@@ -1,5 +1,7 @@
 from django.db import models
 
+from apps.core.images import PORTRAIT_SIZE, optimise_upload
+
 
 # Create your models here.
 class Territory(models.Model):
@@ -88,3 +90,7 @@ class Employee(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        optimise_upload(self.photo, PORTRAIT_SIZE)
+        super().save(*args, **kwargs)
