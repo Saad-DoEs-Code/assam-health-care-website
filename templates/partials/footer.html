@@ -29,6 +29,9 @@
             <ul class="mt-4 space-y-2.5 text-sm">
                 <li><a href="{% url 'create_inquiry' %}" class="text-navy-200 hover:text-white">Request a quote</a></li>
                 <li><a href="{% url 'contact' %}" class="text-navy-200 hover:text-white">Contact</a></li>
+                {% if privacy_url %}
+                    <li><a href="{{ privacy_url }}" class="text-navy-200 hover:text-white">Privacy policy</a></li>
+                {% endif %}
             </ul>
         </nav>
 

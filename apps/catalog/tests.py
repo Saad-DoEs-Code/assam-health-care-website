@@ -127,9 +127,9 @@ class CatalogueListTests(TestCase):
     def test_list_uses_constant_number_of_queries(self):
         for n in range(8):
             make_product(f"Extra {n}", self.dialysis, self.bain)
-        # Settings, count, products, images, categories, help-assistant
-        # answers (+ session-free).
-        with self.assertNumQueries(6):
+        # Settings, privacy page, count, products, images, categories,
+        # help-assistant answers (+ session-free).
+        with self.assertNumQueries(7):
             self.client.get(self.url)
 
     def test_quote_links_present(self):

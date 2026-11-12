@@ -68,6 +68,7 @@
                 <p class="text-xs leading-5 text-muted">
                     Fields marked <span class="text-danger-700" aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required.
                     Your details are used only to assess your application.
+                    {% if privacy_url %}See our <a href="{{ privacy_url }}" class="font-semibold text-navy-700 underline" target="_blank" rel="noopener">privacy policy</a>.{% endif %}
                 </p>
 
                 <button type="submit" class="btn btn-primary w-full">Submit application</button>

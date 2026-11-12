@@ -125,6 +125,24 @@ receive error reports), `DJANGO_ADMIN_URL` (admin address, default `admin/`;
 use a private word in production) and `DJANGO_CACHE_DIR` (shared file cache
 for the rate limits; without it each gunicorn worker counts separately).
 
+## Staff roles
+
+`python manage.py setup_staff_roles` creates four admin groups (safe to re-run;
+it resets their permissions to the definitions in
+`apps/core/management/commands/setup_staff_roles.py`):
+
+| Role | Can do |
+|---|---|
+| Sales representative | View and update quotation requests; read-only catalogue and watchlist |
+| Sales manager | Everything above, plus delete requests and manage the competitor watchlist |
+| Content editor | Products, categories, partners, pages, CEO message, assistant answers, team and site settings — no customer data |
+| HR | Vacancies and job applications — no sales data |
+
+## Privacy policy
+
+A published CMS page with the slug `privacy` is linked automatically from the
+footer and both forms. Until it exists, no link is shown.
+
 ## Uploaded photos
 
 New uploads (product photos, CEO and staff photos, logos) are turned upright

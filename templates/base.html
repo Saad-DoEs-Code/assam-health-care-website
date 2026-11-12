@@ -8,6 +8,7 @@
 
     <meta name="description" content="{% filter striptags %}{% block meta_description %}Assam Healthcare (Pvt.) Ltd., Multan, distributes surgical disposables, medical devices, and dialysis products to hospitals and healthcare providers.{% endblock %}{% endfilter %}">
     {% block meta_robots %}{% endblock %}
+    {% block structured_data %}{% endblock %}
 
     <link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}{% block canonical_path %}{{ request.path }}{% endblock %}">
 
@@ -26,6 +27,9 @@
     {% else %}
         <link rel="icon" href="{% static 'images/AHC_Logo.jpeg' %}">
     {% endif %}
+
+    <link rel="apple-touch-icon" href="{% static 'images/icons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{% static 'images/icons/icon-192.png' %}">
 
     <link rel="preload" href="{% static 'fonts/manrope-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="{% static 'fonts/source-serif-4-latin-wght-normal.woff2' %}" as="font" type="font/woff2" crossorigin>

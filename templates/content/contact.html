@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+{% load site_tags %}
 
 {% block title %}Contact Us | {{ company_contact.name }}{% endblock %}
 
 {% block meta_description %}Contact {{ company_contact.name }}, Multan. Call {{ company_contact.phone }} or send a quotation request online.{% endblock %}
+
+{% block structured_data %}{% organization_schema %}{% endblock %}
 
 {% block content %}
 

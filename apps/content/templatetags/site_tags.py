@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote
@@ -6,6 +7,8 @@ from django import template
 from django.conf import settings
 from django.db import DatabaseError
 from django.templatetags.static import static
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from apps.content.context_processors import phone_to_international
 from apps.content.models import AssistantAnswer
@@ -102,3 +105,45 @@ def help_assistant(context):
             else ""
         ),
     }
+
+
+@register.simple_tag(takes_context=True)
+def organization_schema(context):
+    """
+    Business details for search engines (schema.org JSON-LD), so Google can
+    show the company's name, address, phone and logo in local results.
+    Browsers never run this script type, so the Content-Security-Policy
+    does not block it.
+    """
+    request = context["request"]
+    contact = context.get("company_contact", {})
+    data = {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": contact.get("name"),
+        "description": (
+            "Distributor of medical consumables, surgical disposables, "
+            "medical devices and dialysis products."
+        ),
+        "url": request.build_absolute_uri(reverse("home")),
+        "logo": request.build_absolute_uri(static("images/AHC_Logo.jpeg")),
+        "image": request.build_absolute_uri(static("images/AHC_Logo.jpeg")),
+        "telephone": phone_to_international(contact.get("phone", "")),
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": contact.get("address"),
+            "addressLocality": "Multan",
+            "addressCountry": "PK",
+        },
+    }
+    if contact.get("email"):
+        data["email"] = contact["email"]
+
+    # Escape <, > and & so text from Site Settings can never close the tag.
+    payload = (
+        json.dumps(data, ensure_ascii=False)
+        .replace("<", "\\u003c")
+        .replace(">", "\\u003e")
+        .replace("&", "\\u0026")
+    )
+    return mark_safe(f'<script type="application/ld+json">{payload}</script>')

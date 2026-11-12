@@ -2,7 +2,10 @@ import unicodedata
 
 from django.db import DatabaseError
 
-from .models import SiteSettings
+from .models import Page, SiteSettings
+
+# A published CMS page with this slug is linked from the footer and forms.
+PRIVACY_PAGE_SLUG = "privacy"
 
 # Confirmed company details, used whenever SiteSettings is missing or a field
 # has been left blank. Email and WhatsApp have no default on purpose: they are
@@ -42,8 +45,11 @@ def site_settings(request):
     """
     try:
         settings_obj = SiteSettings.objects.first()
+        privacy_page = Page.objects.filter(
+            slug=PRIVACY_PAGE_SLUG, is_published=True
+        ).first()
     except DatabaseError:
-        settings_obj = None
+        settings_obj = privacy_page = None
 
     phone = (settings_obj.phone if settings_obj else "") or DEFAULT_PHONE
     whatsapp = settings_obj.whatsapp if settings_obj else ""
@@ -65,6 +71,7 @@ def site_settings(request):
     return {
         "site_settings": settings_obj,
         "company_contact": company_contact,
+        "privacy_url": privacy_page.get_absolute_url() if privacy_page else "",
         # First URL segment ("products", "careers", ...) for highlighting
         # the current section in the navigation.
         "nav_section": request.path.strip("/").split("/")[0],

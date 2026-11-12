@@ -1,7 +1,10 @@
 import re
+from io import StringIO
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.core.cache import cache
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -220,7 +223,9 @@ class SecurityHeaderTests(TestCase):
                 html = self.client.get(url).content.decode()
                 for tag in re.findall(r"<script\b[^>]*>", html):
                     self.assertTrue(
-                        "src=" in tag or 'type="application/json"' in tag,
+                        "src=" in tag
+                        or 'type="application/json"' in tag
+                        or 'type="application/ld+json"' in tag,
                         f"Inline script would be blocked by CSP: {tag}",
                     )
 
@@ -301,3 +306,40 @@ class VersionedStaticUrlTests(TestCase):
 
         self.assertRegex(storage.url("css/site.css"), r"^/static/css/site\.css\?v=\d+$")
         self.assertEqual(storage.url("no/such/file.css"), "/static/no/such/file.css")
+
+
+class StaffRoleTests(TestCase):
+    def test_roles_are_created_and_can_be_rerun(self):
+        call_command("setup_staff_roles", stdout=StringIO())
+        call_command("setup_staff_roles", stdout=StringIO())
+
+        self.assertEqual(
+            set(Group.objects.values_list("name", flat=True)),
+            {"Sales representative", "Sales manager", "Content editor", "HR"},
+        )
+
+    def test_roles_only_reach_their_own_data(self):
+        call_command("setup_staff_roles", stdout=StringIO())
+
+        def user_with(role):
+            user = get_user_model().objects.create_user(
+                role.lower().replace(" ", "-"), password="x", is_staff=True
+            )
+            user.groups.add(Group.objects.get(name=role))
+            return get_user_model().objects.get(pk=user.pk)
+
+        rep = user_with("Sales representative")
+        self.assertTrue(rep.has_perm("inquiries.change_inquiry"))
+        self.assertFalse(rep.has_perm("inquiries.delete_inquiry"))
+        self.assertFalse(rep.has_perm("inquiries.add_watchlistentry"))
+        self.assertFalse(rep.has_perm("catalog.change_product"))
+
+        editor = user_with("Content editor")
+        self.assertTrue(editor.has_perm("catalog.change_product"))
+        self.assertFalse(editor.has_perm("inquiries.view_inquiry"))
+        self.assertFalse(editor.has_perm("careers.view_jobapplication"))
+
+        hr = user_with("HR")
+        self.assertTrue(hr.has_perm("careers.view_jobapplication"))
+        self.assertFalse(hr.has_perm("careers.change_jobapplication"))
+        self.assertFalse(hr.has_perm("inquiries.view_inquiry"))

@@ -1,3 +1,6 @@
+import json
+import re
+
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 
@@ -305,3 +308,50 @@ class CategoryPhotoTests(TestCase):
         response = self.client.get(product.get_absolute_url())
         self.assertContains(response, "/static/images/categories/dialysis.svg")
         self.assertNotContains(response, "/static/images/photos/categories/dialysis.webp")
+
+
+class PrivacyLinkTests(TestCase):
+    def test_no_link_until_a_privacy_page_is_published(self):
+        Page.objects.create(title="Privacy Policy", slug="privacy", is_published=False)
+
+        for url in (reverse("home"), reverse("create_inquiry")):
+            with self.subTest(url=url):
+                self.assertNotContains(self.client.get(url), "/pages/privacy/")
+
+    def test_published_page_is_linked_from_footer_and_forms(self):
+        Page.objects.create(title="Privacy Policy", slug="privacy", content="Text")
+
+        self.assertContains(self.client.get(reverse("home")), 'href="/pages/privacy/"')
+        self.assertContains(
+            self.client.get(reverse("create_inquiry")), 'href="/pages/privacy/"', count=2
+        )
+
+
+class StructuredDataTests(TestCase):
+    def schema(self, url):
+        html = self.client.get(url).content.decode()
+        match = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+        self.assertIsNotNone(match, f"No structured data on {url}")
+        return json.loads(match.group(1))
+
+    def test_home_and_contact_describe_the_business(self):
+        for url in (reverse("home"), reverse("contact")):
+            with self.subTest(url=url):
+                data = self.schema(url)
+                self.assertEqual(data["@type"], "LocalBusiness")
+                self.assertEqual(data["telephone"], "+923009631291")
+                self.assertEqual(data["address"]["addressLocality"], "Multan")
+                self.assertTrue(data["logo"].startswith("http://testserver/static/"))
+
+    def test_site_settings_text_cannot_break_out_of_the_script(self):
+        SiteSettings.objects.create(company_name="Evil</script><script>alert(1)</script>")
+
+        html = self.client.get(reverse("home")).content.decode()
+
+        self.assertNotIn("</script><script>alert(1)", html)
+        self.assertEqual(self.schema(reverse("home"))["name"], "Evil</script><script>alert(1)</script>")
+
+    def test_phone_icons_are_linked(self):
+        html = self.client.get(reverse("home")).content.decode()
+        self.assertIn('rel="apple-touch-icon" href="/static/images/icons/apple-touch-icon.png"', html)
+        self.assertIn('sizes="192x192" href="/static/images/icons/icon-192.png"', html)

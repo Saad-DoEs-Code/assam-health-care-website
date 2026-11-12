@@ -73,6 +73,8 @@
 - [ ] **Site Settings** — company name, tagline, phone, address; add **email** `info@assamhealthcare.pk` and the **WhatsApp** number
 - [ ] Upload the **logo** and **favicon**
 - [ ] Publish the **CEO / leadership message** (name, exact title, photo, message)
+- [ ] **Delete the personal document `Saad_Domicile.jpeg`** (attached to Hollow Fiber Dialyzer as "Dialyzer Brochure") in Admin → Product documents, and never copy it to the server
+- [ ] Publish a **Privacy Policy** page (Admin → Content → Pages, slug `privacy`) — wording from the company; it is then linked from the footer and both forms automatically
 - [ ] Write 5–10 **help assistant answers** (Admin → Content → Assistant answers) for the questions customers ask most — delivery areas, how quotations work, payment/ordering process, office hours. No prices. Add the sales **WhatsApp number** in Site Settings so the assistant can offer WhatsApp
 
 **Partners & catalogue**
@@ -216,6 +218,7 @@
   set -a; source /etc/assam_healthcare.env; set +a
   ~/venv/bin/python manage.py migrate
   ~/venv/bin/python manage.py collectstatic --noinput
+  ~/venv/bin/python manage.py setup_staff_roles   # Sales representative, Sales manager, Content editor, HR
   ~/venv/bin/python manage.py createsuperuser     # strong password → password manager
   ```
 - [ ] Shrink photos uploaded before automatic resizing existed (the current CEO photo is 4.3 MB → about 185 KB; originals are kept in `media/originals/`):
@@ -271,7 +274,7 @@
 - [ ] `~/venv/bin/python manage.py check --deploy` (with the env file loaded) shows only the HSTS warning
 - [ ] After a week of working HTTPS: set `DJANGO_SECURE_HSTS_SECONDS=31536000` in `/etc/assam_healthcare.env`, then `sudo systemctl restart assam_healthcare`
 - [ ] Visit a missing page — the friendly 404 must appear, never a technical error page
-- [ ] Give each staff member their **own** admin login with only the permissions they need; no shared accounts
+- [ ] Give each staff member their **own** admin login (tick *Staff status*) and one role under *Groups*: **Sales representative**, **Sales manager**, **Content editor** or **HR**. Only the owner/IT keeps a superuser account; no shared accounts
 - [ ] Confirm root SSH login and password login are disabled (Phase 5)
 - [ ] Confirm automatic security updates are on (`unattended-upgrades`)
 - [ ] Optional: `sudo apt install fail2ban` to block repeated SSH login attempts

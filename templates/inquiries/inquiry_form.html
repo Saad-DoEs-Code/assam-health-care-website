@@ -138,6 +138,7 @@
                 <p class="text-sm leading-6 text-muted">
                     Fields marked <span class="text-danger-700" aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required.
                     We only use your details to respond to this request.
+                    {% if privacy_url %}See our <a href="{{ privacy_url }}" class="font-semibold text-navy-700 underline" target="_blank" rel="noopener">privacy policy</a>.{% endif %}
                 </p>
                 <button type="submit" class="btn btn-primary shrink-0" data-submit-button>Submit quotation request</button>
             </div>
